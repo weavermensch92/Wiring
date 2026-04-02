@@ -46,75 +46,133 @@
   --radius-2xl: calc(var(--radius) * 1.8);
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
+
+  /* Wiring custom colors */
+  --color-wiring-bg-primary: var(--wiring-bg-primary);
+  --color-wiring-bg-secondary: var(--wiring-bg-secondary);
+  --color-wiring-bg-tertiary: var(--wiring-bg-tertiary);
+  --color-wiring-bg-elevated: var(--wiring-bg-elevated);
+  --color-wiring-glass-bg: var(--wiring-glass-bg);
+  --color-wiring-glass-border: var(--wiring-glass-border);
+  --color-wiring-glass-hover: var(--wiring-glass-hover);
+  --color-wiring-text-primary: var(--wiring-text-primary);
+  --color-wiring-text-secondary: var(--wiring-text-secondary);
+  --color-wiring-text-tertiary: var(--wiring-text-tertiary);
+  --color-wiring-accent: var(--wiring-accent);
+  --color-wiring-accent-secondary: var(--wiring-accent-secondary);
+  --color-wiring-accent-glow: var(--wiring-accent-glow);
+  --color-wiring-success: var(--wiring-success);
+  --color-wiring-warning: var(--wiring-warning);
+  --color-wiring-danger: var(--wiring-danger);
+  --color-wiring-info: var(--wiring-info);
 }
 
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  /* Wiring Design System — Dark mode base */
+  --wiring-bg-primary: #0A0A0F;
+  --wiring-bg-secondary: #12121A;
+  --wiring-bg-tertiary: #1A1A26;
+  --wiring-bg-elevated: #22222E;
+  --wiring-glass-bg: rgba(255, 255, 255, 0.04);
+  --wiring-glass-border: rgba(255, 255, 255, 0.08);
+  --wiring-glass-hover: rgba(255, 255, 255, 0.08);
+  --wiring-text-primary: #E8E8ED;
+  --wiring-text-secondary: #8B8B9E;
+  --wiring-text-tertiary: #5C5C6F;
+  --wiring-accent: #8B5CF6;
+  --wiring-accent-secondary: #A78BFA;
+  --wiring-accent-glow: rgba(139, 92, 246, 0.15);
+  --wiring-success: #34D399;
+  --wiring-warning: #FBBF24;
+  --wiring-danger: #F87171;
+  --wiring-info: #60A5FA;
+
+  /* HITL status */
+  --hitl-waiting: #FBBF24;
+  --hitl-in-progress: #8B5CF6;
+  --hitl-approved: #34D399;
+  --hitl-rejected: #F87171;
+  --hitl-escalated: #F97316;
+
+  /* Node type colors */
+  --node-task: #3B82F6;
+  --node-hitl: #FBBF24;
+  --node-branch: #A78BFA;
+  --node-merge: #34D399;
+  --node-escalation: #F97316;
+  --node-routine: #06B6D4;
+
+  /* Layout dimensions */
+  --icon-nav-width: 64px;
+  --sub-nav-width: 280px;
+  --top-bar-height: 56px;
+  --chat-panel-width: 360px;
+
+  /* Override shadcn for dark mode base */
+  --background: #0A0A0F;
+  --foreground: #E8E8ED;
+  --card: #1A1A26;
+  --card-foreground: #E8E8ED;
+  --popover: #1A1A26;
+  --popover-foreground: #E8E8ED;
+  --primary: #8B5CF6;
+  --primary-foreground: #FFFFFF;
+  --secondary: #22222E;
+  --secondary-foreground: #E8E8ED;
+  --muted: #1A1A26;
+  --muted-foreground: #8B8B9E;
+  --accent: #22222E;
+  --accent-foreground: #E8E8ED;
+  --destructive: #F87171;
+  --border: rgba(255, 255, 255, 0.08);
+  --input: rgba(255, 255, 255, 0.08);
+  --ring: #8B5CF6;
+  --chart-1: #8B5CF6;
+  --chart-2: #34D399;
+  --chart-3: #FBBF24;
+  --chart-4: #F87171;
+  --chart-5: #60A5FA;
+  --radius: 0.75rem;
+  --sidebar: #12121A;
+  --sidebar-foreground: #E8E8ED;
+  --sidebar-primary: #8B5CF6;
+  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-accent: #22222E;
+  --sidebar-accent-foreground: #E8E8ED;
+  --sidebar-border: rgba(255, 255, 255, 0.08);
+  --sidebar-ring: #8B5CF6;
 }
 
-.dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+/* Glass panel utility */
+.glass-panel {
+  background: var(--wiring-glass-bg);
+  border: 1px solid var(--wiring-glass-border);
+  backdrop-filter: blur(12px);
+  border-radius: 12px;
+}
+
+.glass-panel:hover {
+  background: var(--wiring-glass-hover);
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
 }
 
 @layer base {

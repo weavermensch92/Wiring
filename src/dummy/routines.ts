@@ -1,0 +1,42 @@
+import { Routine } from "@/types/routine";
+
+export const DUMMY_ROUTINES: Routine[] = [
+  {
+    id: "routine-1",
+    title: "주간 배포",
+    trigger: "매주 월요일 10:00",
+    triggerType: "schedule",
+    agents: ["BE", "FE"],
+    automationLevel: "result_check",
+    lastExecution: "2026-03-31T10:00:00Z",
+    nextExecution: "2026-04-07T10:00:00Z",
+    executionCount: 8,
+    successRate: 87.5,
+    status: "active",
+  },
+  {
+    id: "routine-2",
+    title: "PR 머지 후 API 문서 업데이트",
+    trigger: "PR 머지 이벤트",
+    triggerType: "event",
+    agents: ["BE", "FE"],
+    automationLevel: "notify_only",
+    lastExecution: "2026-04-03T08:45:00Z",
+    executionCount: 34,
+    successRate: 100,
+    status: "active",
+  },
+  {
+    id: "routine-3",
+    title: "정기 보안 스캔",
+    trigger: "매주 금요일 18:00",
+    triggerType: "schedule",
+    agents: ["GM"],
+    automationLevel: "approval_required",
+    lastExecution: "2026-03-28T18:00:00Z",
+    nextExecution: "2026-04-04T18:00:00Z",
+    executionCount: 4,
+    successRate: 100,
+    status: "active",
+  },
+];
