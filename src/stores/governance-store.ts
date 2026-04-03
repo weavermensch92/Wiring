@@ -2,7 +2,7 @@
 
 import { create } from "zustand";
 import { DataSource, TableClassification, AccessPolicy, AccessLogEntry, TemporaryPermission, DataLevel } from "@/types/governance";
-import { DUMMY_DATA_SOURCES, DUMMY_TABLE_CLASSIFICATIONS, DUMMY_ACCESS_POLICIES, DUMMY_ACCESS_LOGS } from "@/dummy/governance";
+import { DUMMY_DATA_SOURCES, DUMMY_TABLE_CLASSIFICATIONS, DUMMY_ACCESS_POLICIES, DUMMY_ACCESS_LOGS, DUMMY_TEMPORARY_PERMISSIONS } from "@/dummy/governance";
 
 interface GovernanceState {
   dataSources: DataSource[];
@@ -21,7 +21,7 @@ export const useGovernanceStore = create<GovernanceState>((set) => ({
   tableClassifications: DUMMY_TABLE_CLASSIFICATIONS,
   accessPolicies: DUMMY_ACCESS_POLICIES,
   accessLogs: DUMMY_ACCESS_LOGS,
-  temporaryPermissions: [],
+  temporaryPermissions: DUMMY_TEMPORARY_PERMISSIONS,
   classifyColumn: (dataSourceId, tableId, columnName, level) =>
     set((state) => {
       const tables = [...(state.tableClassifications[dataSourceId] || [])];

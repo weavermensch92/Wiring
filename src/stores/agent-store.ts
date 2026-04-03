@@ -2,7 +2,7 @@
 
 import { create } from "zustand";
 import { Agent, AgentMessage, ModelAllocation } from "@/types/agent";
-import { DUMMY_AGENTS } from "@/dummy/agents";
+import { DUMMY_AGENTS, DUMMY_AGENT_MESSAGES } from "@/dummy/agents";
 
 interface AgentState {
   agents: Agent[];
@@ -15,7 +15,7 @@ interface AgentState {
 
 export const useAgentStore = create<AgentState>((set) => ({
   agents: DUMMY_AGENTS,
-  communicationLogs: [],
+  communicationLogs: DUMMY_AGENT_MESSAGES,
   modelAllocations: {},
   setModelAllocation: (epicId, allocation) =>
     set((state) => ({

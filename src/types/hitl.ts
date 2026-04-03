@@ -1,3 +1,18 @@
+export type HITLDecisionAction = "approve" | "reject" | "escalate" | "delegate" | "comment";
+
+export interface DecisionRecord {
+  id: string;
+  action: HITLDecisionAction;
+  userId: string;
+  userName: string;
+  userLevel: string;
+  reason?: string;
+  toUserId?: string;
+  toUserName?: string;
+  toUserLevel?: string;
+  timestamp: string;
+}
+
 export type HITLType =
   | "code_review"
   | "security_approval"
@@ -21,6 +36,9 @@ export interface HITLQueueItem {
   completedAt?: string;
   requestedBy: string;
   assignedTo: { id: string; name: string; level: string };
+  originalAssignee?: { id: string; name: string; level: string };
+  currentLevel?: string;
+  decisionHistory?: DecisionRecord[];
   briefing: string;
   relatedFiles?: string[];
   agentDiscussionSummary?: string;

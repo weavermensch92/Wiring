@@ -13,6 +13,7 @@ export interface Routine {
   executionCount: number;
   successRate: number;
   status: "active" | "paused";
+  epicId?: string;  // undefined = 상시 루틴, 값 있으면 에픽별 루틴
 }
 
 export interface RoutineExecution {

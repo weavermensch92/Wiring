@@ -1,6 +1,6 @@
 # GRIDGE Wiring AI — 프로젝트 컨텍스트 문서
 
-> 마지막 업데이트: 2026-04-03
+> 마지막 업데이트: 2026-04-04
 > 브랜치: `claude/dev-management-groupware-ui-6hnmp` (main에 머지 완료)
 
 ---
@@ -35,7 +35,7 @@
 
 ---
 
-## 3. 구현 완료 단계 (Phase 1~5)
+## 3. 구현 완료 단계 (Phase 1~16)
 
 ### Phase 1: 프로젝트 초기화 + 네비게이션 재설계
 - 글래스모피즘 다크 테마 디자인 시스템
@@ -73,6 +73,92 @@
 - HITL 연결 표시 + 링크
 - 타입 확장: Subtask, TicketComment, TicketActivity
 - 스토어 확장: subtasks, comments, activities + addComment, toggleSubtask, addSubtask
+
+### Phase 6: 에이전트 현황 모니터링 페이지 (`/agents`)
+- KPI 카드 (전체/활성/대기/오늘 총 비용)
+- 에이전트 카드 그리드: 역할·오늘 비용·완료 티켓·주 모델 표시
+- 우측 상세 패널 (클릭 시): 통계, 현재 작업, 작업 이력, 소통 로그
+- 소통 피드: 전체 / 에이전트 필터 탭
+- 타입 확장: Agent에 role/todayCostUsd/primaryModel/AgentWorkHistory 추가
+- 더미 추가: DUMMY_AGENT_MESSAGES (10개), DUMMY_AGENT_WORK_HISTORY (10개)
+
+### Phase 7: 외부 업무 관리 (`/external`)
+- 3탭: 새 제안 / 진행 중 / 완료·정산
+- KPI: 누적 수익, 이번 달, 정산 대기, 완료 건수
+- 제안 카드 클릭 → 상세 Dialog (수락/거절, HR 매칭 점수, 마감 D-day)
+- 진행 중: 진행률 바 + 산출물 목록
+- 완료: 정산 상태 (pending/requested/paid)
+- 타입 신규: ExternalWorkProposal, ExternalWork, ExternalEarningsSummary
+- aiAssistLevel (full/assisted/human_only) 개념 도입
+
+### Phase 8: 거버넌스 페이지 (`/governance`)
+- 4탭: 개요 / 데이터 소스·분류 / 접근 정책 / 감사 로그
+- 테이블/컬럼 드릴다운, 미분류 컬럼 인라인 분류 버튼
+- 역할×데이터레벨 접근 정책 매트릭스 (Agent/L1~L4/외부전문가)
+- 감사 로그: 액션 유형별 필터 (auto_allow/denied/request_sent/temp_allow)
+- 더미 추가: DUMMY_TEMPORARY_PERMISSIONS (임시 권한)
+- governance-store에 DUMMY_TEMPORARY_PERMISSIONS 초기값 연결
+
+### Phase 9: 스킬 페이지 (`/skills`)
+- 3탭: 스킬 라이브러리 / 문서 번들 / AI 활용 리포트
+- 라이브러리: 검색 + 범위(전사/팀)/카테고리 필터 + 우측 상세 패널
+- 문서 번들: 생성 상태(완료/생성 중/업데이트 필요) + 에이전트 아바타
+- AI 활용 리포트: KPI + 인기 스킬 TOP5 바 차트 + 에이전트별 사용량
+- 타입 신규: Skill, SkillDocument, SkillUsageSummary
+- 더미 신규: skills.ts (스킬 10개, 문서 5개, 사용 요약)
+
+### Phase 10: 설정 페이지 (`/settings`)
+- 3탭: AI 설정 / 외부 업무 정책 / 팀 관리
+- AI 설정: HITL 모드 선택(항상/리스크기반/자동), 기본 모델, 월 비용 한도
+- 외부 업무 정책: 수신 허용, HR 자동 매칭, 수락 기준(시급/매칭점수)
+- 팀 관리: 팀 목록 + 팀원 드릴다운 + API 키 관리
+
+### Phase 11: 팀 예산 관리 (`/team/[teamId]/budget`)
+- 팀 전체 예산 소진율 (KPI 4개 + 진행 바)
+- 프로젝트별 예산 소진 현황
+- 에이전트별 오늘 비용 바 차트
+- 에픽별 상세 비용 테이블
+- SubNav "팀 예산" → 라우팅 연결
+
+### Phase 12: 채팅 패널 고도화
+- 컨텍스트 인식 응답 (ticket/hitl/epic/general 별 다른 응답 생성)
+- 빠른 질문 버튼 (컨텍스트별 3개 제안)
+- 타임스탬프 표시, 에이전트 이름 표시
+- 메시지 하단 자동 스크롤
+
+### Phase 13: 홈 SubNav 실데이터 연결
+- 내 HITL 큐: waitingCount 실시간, 클릭 시 첫 번째 대기 항목으로 이동
+- 인박스: waitingCount 뱃지, HITL 큐로 이동
+- 최근 열람: 활성 프로젝트 3개 실데이터
+- 외주 업무 항목: /external 라우팅 연결
+
+### Phase 14: 레거시 페이지 정리
+- `/dashboard` → `/home` 리다이렉트
+- `/documents` → `/skills` 리다이렉트
+- `/flowchart` → `/home` 리다이렉트
+- `/tickets` → `/home` 리다이렉트
+- Kanban hydration 버그 수정 (`DndContext` isMounted 가드)
+
+### Phase 15: 플로차트 재개편 + 루틴 + SubNav 드릴다운 + HITL 의결
+- 플로차트 좌→우(LR) 레이아웃으로 전환
+- 티켓 클릭 시 서브태스크 노드 전개 (SubtaskNode 신규)
+- 루틴 플로차트 통합: RoutineNode 신규, 상시 루틴(좌측 레인) / 에픽 루틴(에픽 앞)
+- routine.ts에 `epicId?` 필드 추가
+- SubNav 4단계 드릴다운: 프로젝트→에픽→티켓→서브태스크 접기/펼치기
+- navigation-store에 expandedProjects/expandedEpics/expandedTickets + ticketDialog 상태 추가
+- app-shell에 전역 TicketDetailDialog (SubNav에서 열 수 있도록)
+- HITL 에스컬레이션: 상위 레벨 선택 + 사유 입력 UI
+- HITL 위임: 하위 레벨 선택 + 사유 입력 UI
+- DecisionRecord 타입 추가, decisionHistory 필드 추가
+- 의결 이력 타임라인 UI
+- 무한 루프 버그 수정 (flowchart useMemo + useEffect 패턴 제거)
+
+### Phase 16: SubNav 완성 + 팀 피드 + 문서 동기화
+- Skills/Governance/Settings SubNav → 탭 딥링크 (`?tab=xxx`) 연결
+- 각 페이지 URL 쿼리 파라미터로 탭 초기화
+- 팀 피드 페이지 신규 (`/team/[teamId]/feed`): 에이전트 소통·HITL·티켓·루틴 통합 피드
+- SubNav "팀 피드" 항목 라우팅 연결
+- 홈 SubNav "인박스" 실 HITL 대기 수 표시 및 클릭 라우팅
 
 ---
 
@@ -209,13 +295,17 @@ shadcn/ui 기반 (모두 @base-ui/react 프리미티브 사용):
 |--------|------|
 | `/` | → `/home` 리다이렉트 |
 | `/home` | 데이터 기반 대시보드 (KPI, 팀 목록, 활성 티켓) |
-| `/team/[teamId]` | 팀 오버뷰 (KPI, 프로젝트 목록 → 프로젝트 링크) |
+| `/team/[teamId]` | 팀 오버뷰 (KPI, 프로젝트 목록) |
 | `/team/[teamId]/project/[projectId]` | 프로젝트 워크스페이스 (보드/타임라인/플로차트 탭) |
-| `/hitl/[itemId]` | HITL 상세 (6유형 UI, 승인/반려/에스컬레이션) |
-| `/skills` | 스킬 플레이스홀더 (탭: 라이브러리/문서/가이드) |
-| `/governance` | 거버넌스 플레이스홀더 |
-| `/settings` | 설정 플레이스홀더 |
-| `/agents`, `/dashboard`, `/documents`, `/external`, `/flowchart`, `/tickets` | Phase 1 레거시 플레이스홀더 페이지 |
+| `/team/[teamId]/budget` | 팀 예산 관리 (전체 예산, 프로젝트별, 에이전트별) |
+| `/team/[teamId]/feed` | 팀 피드 (에이전트 소통·HITL·티켓·루틴 통합) |
+| `/hitl/[itemId]` | HITL 상세 (7유형 UI, 승인/반려/에스컬레이션/위임 + 의결 이력) |
+| `/skills` | 스킬 라이브러리·문서 번들·AI 활용 리포트 (탭 딥링크: ?tab=) |
+| `/governance` | 거버넌스 4탭 (개요/분류/정책/감사로그, 탭 딥링크: ?tab=) |
+| `/settings` | 설정 3탭 (AI설정/외부정책/팀관리, 탭 딥링크: ?tab=) |
+| `/agents` | 에이전트 현황 + 소통 피드 + 상세 패널 |
+| `/external` | 외부 업무 관리 (제안/진행/완료 3탭) |
+| `/dashboard`, `/documents`, `/flowchart`, `/tickets` | 레거시 → 리다이렉트 처리 완료 |
 
 ---
 
@@ -316,27 +406,20 @@ Agent 색상: `src/lib/constants.ts` → `AGENT_COLORS`
 
 ## 9. 미구현 / 향후 작업
 
-### 기능 구현 대기
-- [ ] 스킬 페이지 (스킬 라이브러리, 문서 번들, AI 활용 리포트)
-- [ ] 거버넌스 페이지 (데이터 소스, 분류, 접근 정책, 감사 로그)
-- [ ] 설정 페이지 (AI 설정, 외부 업무 정책, 팀 관리)
-- [ ] 채팅 패널 고도화 (컨텍스트별 채팅, UI 조작 연동)
-- [ ] 문서 편집기 (Tiptap/Univer)
-- [ ] Agent 간 소통 피드 (팀 피드)
-- [ ] Agent 현황 모니터링 페이지
-- [ ] 팀 예산 관리 페이지
-- [ ] 홈 SubNav 세부 항목 (인박스, 즐겨찾기, 최근 열람, 활동 리포트, 일정)
+### 기능 구현 대기 (Phase 17+)
+- [ ] 문서 편집기 (Tiptap/Univer 통합)
+- [ ] 홈 SubNav "즐겨찾기" — localStorage 기반 북마크
+- [ ] 홈 SubNav "일정" — 타임라인 뷰 연결
+- [ ] 팀원 상세 / 팀원 초대 UI
+- [ ] 팀 HITL 큐 페이지 (팀 범위 필터링)
 
-### 기술 미정
+### 기술 미정 (백엔드 연동 시)
 - [ ] 백엔드 아키텍처 (API, DB, 인증)
 - [ ] 실시간 소통 인프라 (WebSocket/SSE)
 - [ ] AI Agent 통신 프로토콜 (MCP 연동)
-- [ ] GRIDGE Market 연동
+- [ ] GRIDGE Market 연동 (외부 업무 마켓플레이스)
 - [ ] 모바일 반응형
-- [ ] 권한 체계 (관리자 레벨별 접근)
-
-### 레거시 정리 대상
-`/agents`, `/dashboard`, `/documents`, `/external`, `/flowchart`, `/tickets` — Phase 1에서 생성된 플레이스홀더 페이지. 실제 기능이 새 라우트로 이전되었으므로 정리 가능.
+- [ ] 권한 체계 실제 적용 (현재는 UI만)
 
 ---
 

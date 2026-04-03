@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useMemo } from "react";
+import { useState, useCallback, useMemo, useEffect } from "react";
 import {
   DndContext,
   DragOverlay,
@@ -22,11 +22,14 @@ const COLUMNS: TicketStatus[] = ["backlog", "todo", "in_progress", "review", "do
 
 export function KanbanBoard({ projectId }: { projectId: string }) {
   const { epics, tickets: allTickets, moveTicket } = useProjectStore();
+  const [mounted, setMounted] = useState(false);
   const [activeTicket, setActiveTicket] = useState<Ticket | null>(null);
   const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
   const [sheetOpen, setSheetOpen] = useState(false);
   const [addDialogOpen, setAddDialogOpen] = useState(false);
   const [addDialogStatus, setAddDialogStatus] = useState<TicketStatus>("backlog");
+
+  useEffect(() => { setMounted(true); }, []);
 
   const projectEpics = epics[projectId] || [];
   const projectTickets = useMemo(() => {
@@ -128,6 +131,22 @@ export function KanbanBoard({ projectId }: { projectId: string }) {
   }, []);
 
   const firstEpicId = projectEpics[0]?.id;
+
+  if (!mounted) {
+    return (
+      <div className="flex gap-4 p-4 min-w-max overflow-x-auto">
+        {COLUMNS.map((status) => (
+          <KanbanColumn
+            key={status}
+            status={status}
+            tickets={ticketsByStatus[status]}
+            onTicketClick={handleTicketClick}
+            onAddTicket={handleAddTicket}
+          />
+        ))}
+      </div>
+    );
+  }
 
   return (
     <>

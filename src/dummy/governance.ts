@@ -1,4 +1,4 @@
-import { DataSource, TableClassification, AccessPolicy, AccessLogEntry } from "@/types/governance";
+import { DataSource, TableClassification, AccessPolicy, AccessLogEntry, TemporaryPermission } from "@/types/governance";
 
 export const DUMMY_DATA_SOURCES: DataSource[] = [
   {
@@ -102,4 +102,30 @@ export const DUMMY_ACCESS_LOGS: AccessLogEntry[] = [
   { id: "log-4", timestamp: "2026-04-03T14:30:00Z", subject: "김CTO (L3)", subjectType: "human", data: "orders.user_id", classification: "raw", action: "temp_allow", reason: "티켓 #ticket-6 한정" },
   { id: "log-5", timestamp: "2026-04-03T13:10:00Z", subject: "BE Agent", subjectType: "agent", data: "products.*", classification: "general", action: "auto_allow", reason: "정책 일치" },
   { id: "log-6", timestamp: "2026-04-03T12:45:00Z", subject: "박프론트 (외부)", subjectType: "external", data: "posts.content", classification: "general", action: "request_sent", reason: "외부 전문가 일반 데이터 접근 승인 필요" },
+  { id: "log-7", timestamp: "2026-04-03T11:30:00Z", subject: "PM Agent", subjectType: "agent", data: "categories.*", classification: "meta", action: "auto_allow", reason: "정책 일치" },
+  { id: "log-8", timestamp: "2026-04-03T10:00:00Z", subject: "이시니어 (L2)", subjectType: "human", data: "users.email", classification: "raw", action: "request_sent", reason: "버그 재현에 필요" },
+  { id: "log-9", timestamp: "2026-04-03T09:15:00Z", subject: "Dsn Agent", subjectType: "agent", data: "posts.title", classification: "general", action: "auto_allow", reason: "정책 일치" },
+];
+
+export const DUMMY_TEMPORARY_PERMISSIONS: TemporaryPermission[] = [
+  {
+    id: "tmp-1",
+    grantedTo: "FE Agent",
+    table: "users",
+    columns: ["user_id", "display_name"],
+    purpose: "이미지 소유자 표시 (ticket-6)",
+    expiresWhen: "ticket-6 완료 시",
+    grantedAt: "2026-04-03T14:30:00Z",
+    grantedBy: "김CTO",
+  },
+  {
+    id: "tmp-2",
+    grantedTo: "박프론트 (외부)",
+    table: "posts",
+    columns: ["content", "created_at"],
+    purpose: "에디터 마이그레이션 검토",
+    expiresWhen: "2026-04-10T18:00:00Z",
+    grantedAt: "2026-04-03T13:00:00Z",
+    grantedBy: "이시니어",
+  },
 ];

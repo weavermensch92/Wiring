@@ -7,6 +7,23 @@ export interface Agent {
   avatar: string;
   color: string;
   currentTask: string | null;
+  currentTicketId?: string | null;
+  currentEpicId?: string | null;
+  todayCostUsd?: number;
+  todayCompletedTickets?: number;
+  primaryModel?: string;
+  role?: string;
+}
+
+export interface AgentWorkHistory {
+  id: string;
+  agentId: string;
+  ticketId: string;
+  ticketTitle: string;
+  action: string;
+  timestamp: string;
+  durationMin?: number;
+  costUsd?: number;
 }
 
 export interface AgentMessage {

@@ -1,15 +1,17 @@
 "use client";
 
-import { use } from "react";
+import { use, useState } from "react";
 import { useHITLStore } from "@/stores/hitl-store";
-import { HITLQueueItem } from "@/types/hitl";
+import { HITLQueueItem, DecisionRecord } from "@/types/hitl";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { DUMMY_USERS } from "@/dummy/users";
 import {
   CheckCircle,
   XCircle,
   ArrowUpRight,
+  ArrowDownRight,
   Clock,
   AlertTriangle,
   FileText,
@@ -20,7 +22,20 @@ import {
   DollarSign,
   Users,
   Cpu,
+  MessageSquare,
+  ChevronDown,
 } from "lucide-react";
+
+// ─── Level hierarchy ───
+const LEVEL_ORDER = ["L1", "L2", "L3", "L4"];
+function getHigherLevels(currentLevel: string): string[] {
+  const idx = LEVEL_ORDER.indexOf(currentLevel);
+  return idx >= 0 ? LEVEL_ORDER.slice(idx + 1) : [];
+}
+function getLowerOrSameLevels(currentLevel: string): string[] {
+  const idx = LEVEL_ORDER.indexOf(currentLevel);
+  return idx > 0 ? LEVEL_ORDER.slice(0, idx) : [];
+}
 
 const TYPE_CONFIG: Record<string, { label: string; icon: typeof FileText; color: string }> = {
   code_review: { label: "코드 리뷰", icon: FileText, color: "var(--wiring-info)" },
@@ -49,7 +64,7 @@ const PRIORITY_CONFIG: Record<string, { label: string; color: string }> = {
 
 export default function HITLDetailPage({ params }: { params: Promise<{ itemId: string }> }) {
   const { itemId } = use(params);
-  const { queueItems, approveItem, rejectItem, escalateItem } = useHITLStore();
+  const { queueItems, approveItem, rejectItem, escalateItem, delegateItem } = useHITLStore();
   const item = queueItems.find((i) => i.id === itemId);
 
   if (!item) {
@@ -124,34 +139,18 @@ export default function HITLDetailPage({ params }: { params: Promise<{ itemId: s
 
       {/* Actions */}
       {isActionable && (
-        <div className="glass-panel p-5">
-          <h2 className="text-sm font-semibold text-[var(--wiring-text-primary)] mb-3">액션</h2>
-          <div className="flex items-center gap-3">
-            <Button
-              onClick={() => approveItem(item.id)}
-              className="bg-[var(--wiring-success)] hover:bg-[var(--wiring-success)]/80 text-white gap-1.5"
-            >
-              <CheckCircle className="w-4 h-4" />
-              승인
-            </Button>
-            <Button
-              variant="outline"
-              onClick={() => rejectItem(item.id, "사유 미입력")}
-              className="text-[var(--wiring-danger)] border-[var(--wiring-danger)]/30 hover:bg-[var(--wiring-danger)]/10 gap-1.5"
-            >
-              <XCircle className="w-4 h-4" />
-              반려
-            </Button>
-            <Button
-              variant="outline"
-              onClick={() => escalateItem(item.id)}
-              className="text-[var(--wiring-warning)] border-[var(--wiring-warning)]/30 hover:bg-[var(--wiring-warning)]/10 gap-1.5"
-            >
-              <ArrowUpRight className="w-4 h-4" />
-              에스컬레이션
-            </Button>
-          </div>
-        </div>
+        <ActionPanel
+          item={item}
+          onApprove={(reason) => approveItem(item.id, reason)}
+          onReject={(reason) => rejectItem(item.id, reason)}
+          onEscalate={(tId, tName, tLevel, reason) => escalateItem(item.id, tId, tName, tLevel, reason)}
+          onDelegate={(tId, tName, tLevel, reason) => delegateItem(item.id, tId, tName, tLevel, reason)}
+        />
+      )}
+
+      {/* Decision history */}
+      {(item.decisionHistory?.length ?? 0) > 0 && (
+        <DecisionTimeline history={item.decisionHistory!} />
       )}
 
       {/* Completed info */}
@@ -165,6 +164,210 @@ export default function HITLDetailPage({ params }: { params: Promise<{ itemId: s
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+// ─── Action Panel ───
+function ActionPanel({
+  item,
+  onApprove,
+  onReject,
+  onEscalate,
+  onDelegate,
+}: {
+  item: HITLQueueItem;
+  onApprove: (reason?: string) => void;
+  onReject: (reason: string) => void;
+  onEscalate: (tId: string, tName: string, tLevel: string, reason: string) => void;
+  onDelegate: (tId: string, tName: string, tLevel: string, reason: string) => void;
+}) {
+  const [mode, setMode] = useState<"idle" | "reject" | "escalate" | "delegate">("idle");
+  const [reason, setReason] = useState("");
+  const [selectedUserId, setSelectedUserId] = useState("");
+
+  const currentLevel = item.currentLevel ?? item.assignedTo.level;
+  const escalateTargets = DUMMY_USERS.filter((u) => getHigherLevels(currentLevel).includes(u.level));
+  const delegateTargets = DUMMY_USERS.filter((u) => getLowerOrSameLevels(currentLevel).includes(u.level));
+
+  function handleConfirm() {
+    if (mode === "reject") {
+      if (!reason.trim()) return;
+      onReject(reason.trim());
+    } else if (mode === "escalate") {
+      const target = DUMMY_USERS.find((u) => u.id === selectedUserId);
+      if (!target || !reason.trim()) return;
+      onEscalate(target.id, target.name, target.level, reason.trim());
+    } else if (mode === "delegate") {
+      const target = DUMMY_USERS.find((u) => u.id === selectedUserId);
+      if (!target || !reason.trim()) return;
+      onDelegate(target.id, target.name, target.level, reason.trim());
+    }
+    setMode("idle");
+    setReason("");
+    setSelectedUserId("");
+  }
+
+  return (
+    <div className="glass-panel p-5 space-y-4">
+      <h2 className="text-sm font-semibold text-[var(--wiring-text-primary)]">액션</h2>
+
+      {mode === "idle" && (
+        <div className="flex items-center gap-3 flex-wrap">
+          <Button
+            onClick={() => onApprove()}
+            className="bg-[var(--wiring-success)] hover:bg-[var(--wiring-success)]/80 text-white gap-1.5"
+          >
+            <CheckCircle className="w-4 h-4" />승인
+          </Button>
+          <Button
+            variant="outline"
+            onClick={() => setMode("reject")}
+            className="text-[var(--wiring-danger)] border-[var(--wiring-danger)]/30 hover:bg-[var(--wiring-danger)]/10 gap-1.5"
+          >
+            <XCircle className="w-4 h-4" />반려
+          </Button>
+          {escalateTargets.length > 0 && (
+            <Button
+              variant="outline"
+              onClick={() => setMode("escalate")}
+              className="text-[var(--wiring-warning)] border-[var(--wiring-warning)]/30 hover:bg-[var(--wiring-warning)]/10 gap-1.5"
+            >
+              <ArrowUpRight className="w-4 h-4" />에스컬레이션
+            </Button>
+          )}
+          {delegateTargets.length > 0 && (
+            <Button
+              variant="outline"
+              onClick={() => setMode("delegate")}
+              className="text-[var(--wiring-info)] border-[var(--wiring-info)]/30 hover:bg-[var(--wiring-info)]/10 gap-1.5"
+            >
+              <ArrowDownRight className="w-4 h-4" />위임
+            </Button>
+          )}
+        </div>
+      )}
+
+      {(mode === "reject" || mode === "escalate" || mode === "delegate") && (
+        <div className="space-y-3">
+          <div className="flex items-center gap-2">
+            {mode === "reject" && <XCircle className="w-4 h-4 text-[var(--wiring-danger)]" />}
+            {mode === "escalate" && <ArrowUpRight className="w-4 h-4 text-[var(--wiring-warning)]" />}
+            {mode === "delegate" && <ArrowDownRight className="w-4 h-4 text-[var(--wiring-info)]" />}
+            <p className="text-sm font-medium text-[var(--wiring-text-primary)]">
+              {mode === "reject" ? "반려 사유" : mode === "escalate" ? "에스컬레이션 대상 & 사유" : "위임 대상 & 사유"}
+            </p>
+          </div>
+
+          {(mode === "escalate" || mode === "delegate") && (
+            <div className="space-y-1">
+              <p className="text-xs text-[var(--wiring-text-tertiary)]">대상자 선택</p>
+              <div className="space-y-1">
+                {(mode === "escalate" ? escalateTargets : delegateTargets).map((u) => (
+                  <button
+                    key={u.id}
+                    onClick={() => setSelectedUserId(u.id)}
+                    className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg border text-left transition-all ${
+                      selectedUserId === u.id
+                        ? "border-[var(--wiring-accent)] bg-[var(--wiring-accent-glow)]"
+                        : "border-[var(--wiring-glass-border)] hover:border-[var(--wiring-text-tertiary)]"
+                    }`}
+                  >
+                    <User className="w-3.5 h-3.5 text-[var(--wiring-text-tertiary)]" />
+                    <span className="text-sm text-[var(--wiring-text-primary)]">{u.name}</span>
+                    <Badge variant="secondary" className="text-[9px] ml-1">{u.level}</Badge>
+                    <span className="text-xs text-[var(--wiring-text-tertiary)] ml-auto">{u.role}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <textarea
+            value={reason}
+            onChange={(e) => setReason(e.target.value)}
+            placeholder="사유를 입력하세요 (필수)"
+            rows={3}
+            className="w-full bg-[var(--wiring-glass-bg)] border border-[var(--wiring-glass-border)] rounded-lg px-3 py-2 text-xs text-[var(--wiring-text-primary)] placeholder:text-[var(--wiring-text-tertiary)] focus:outline-none focus:border-[var(--wiring-accent)] transition-colors resize-none"
+          />
+
+          <div className="flex gap-2">
+            <Button
+              onClick={handleConfirm}
+              disabled={!reason.trim() || ((mode === "escalate" || mode === "delegate") && !selectedUserId)}
+              size="sm"
+              className="bg-[var(--wiring-accent)] hover:bg-[var(--wiring-accent)]/80 text-white"
+            >
+              확인
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => { setMode("idle"); setReason(""); setSelectedUserId(""); }}
+              className="text-[var(--wiring-text-secondary)]"
+            >
+              취소
+            </Button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── Decision Timeline ───
+function DecisionTimeline({ history }: { history: DecisionRecord[] }) {
+  const ACTION_CONFIG: Record<string, { icon: typeof CheckCircle; color: string; label: string }> = {
+    approve: { icon: CheckCircle, color: "var(--wiring-success)", label: "승인" },
+    reject: { icon: XCircle, color: "var(--wiring-danger)", label: "반려" },
+    escalate: { icon: ArrowUpRight, color: "var(--wiring-warning)", label: "에스컬레이션" },
+    delegate: { icon: ArrowDownRight, color: "var(--wiring-info)", label: "위임" },
+    comment: { icon: MessageSquare, color: "var(--wiring-text-tertiary)", label: "코멘트" },
+  };
+
+  return (
+    <div className="glass-panel p-5">
+      <h2 className="text-sm font-semibold text-[var(--wiring-text-primary)] mb-4">의결 이력</h2>
+      <div className="relative">
+        {/* Vertical line */}
+        <div className="absolute left-3.5 top-0 bottom-0 w-px bg-[var(--wiring-glass-border)]" />
+        <div className="space-y-4">
+          {history.map((record) => {
+            const cfg = ACTION_CONFIG[record.action] || ACTION_CONFIG.comment;
+            const Icon = cfg.icon;
+            return (
+              <div key={record.id} className="flex gap-3 relative">
+                <div
+                  className="w-7 h-7 rounded-full flex items-center justify-center shrink-0 z-10"
+                  style={{ backgroundColor: `${cfg.color}20`, border: `1px solid ${cfg.color}` }}
+                >
+                  <Icon className="w-3.5 h-3.5" style={{ color: cfg.color }} />
+                </div>
+                <div className="flex-1 min-w-0 pb-1">
+                  <div className="flex items-center gap-2 mb-0.5">
+                    <span className="text-xs font-medium text-[var(--wiring-text-primary)]">{record.userName}</span>
+                    <Badge variant="secondary" className="text-[9px]">{record.userLevel}</Badge>
+                    <span className="text-[10px] font-medium ml-1" style={{ color: cfg.color }}>{cfg.label}</span>
+                    {record.toUserName && (
+                      <span className="text-[10px] text-[var(--wiring-text-tertiary)]">
+                        → {record.toUserName} ({record.toUserLevel})
+                      </span>
+                    )}
+                    <span className="text-[10px] text-[var(--wiring-text-tertiary)] ml-auto">
+                      {new Date(record.timestamp).toLocaleString("ko-KR", { month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit" })}
+                    </span>
+                  </div>
+                  {record.reason && (
+                    <p className="text-xs text-[var(--wiring-text-secondary)] leading-relaxed">
+                      {record.reason}
+                    </p>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
     </div>
   );
 }

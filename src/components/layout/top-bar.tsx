@@ -3,6 +3,7 @@
 import { usePathname } from "next/navigation";
 import { useLayoutStore } from "@/stores/layout-store";
 import { useHITLStore } from "@/stores/hitl-store";
+import { useFavoritesStore } from "@/stores/favorites-store";
 import { DUMMY_TEAMS } from "@/dummy/teams";
 import { DUMMY_PROJECTS } from "@/dummy/projects";
 import { Badge } from "@/components/ui/badge";
@@ -13,6 +14,7 @@ import {
   Clock,
   Search,
   MessageSquare,
+  Star,
 } from "lucide-react";
 
 const BREADCRUMB_MAP: Record<string, string> = {
@@ -59,9 +61,21 @@ export function TopBar() {
   const pathname = usePathname();
   const { chatPanelOpen, toggleChatPanel } = useLayoutStore();
   const { queueItems } = useHITLStore();
+  const { toggle, has } = useFavoritesStore();
   const waitingCount = queueItems.filter((i) => i.status === "waiting").length;
 
   const breadcrumb = getBreadcrumb(pathname);
+
+  // Build favorite item from current page
+  const projectMatch = pathname.match(/^\/team\/(.+?)\/project\/(.+)$/);
+  const currentFavItem = projectMatch ? {
+    id: `project-${projectMatch[2]}`,
+    type: "project" as const,
+    label: breadcrumb,
+    href: pathname,
+    teamColor: DUMMY_TEAMS.find((t) => t.id === projectMatch[1])?.color,
+  } : null;
+  const isFavorited = currentFavItem ? has(currentFavItem.id) : false;
 
   return (
     <header className="flex items-center h-14 px-4 border-b border-[var(--wiring-glass-border)] bg-[var(--wiring-bg-secondary)] shrink-0">
@@ -76,6 +90,19 @@ export function TopBar() {
         <span className="ml-2 text-sm text-[var(--wiring-text-primary)] font-medium truncate">
           {breadcrumb}
         </span>
+        {currentFavItem && (
+          <button
+            onClick={() => toggle(currentFavItem)}
+            className={`ml-1 p-1 rounded-lg transition-colors ${
+              isFavorited
+                ? "text-[var(--wiring-warning)]"
+                : "text-[var(--wiring-text-tertiary)] hover:text-[var(--wiring-warning)]"
+            }`}
+            title={isFavorited ? "즐겨찾기 제거" : "즐겨찾기 추가"}
+          >
+            <Star className={`w-3.5 h-3.5 ${isFavorited ? "fill-current" : ""}`} />
+          </button>
+        )}
       </div>
 
       {/* Center: history */}
