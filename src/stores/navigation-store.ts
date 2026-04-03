@@ -12,7 +12,7 @@ interface NavigationState {
 }
 
 export const useNavigationStore = create<NavigationState>((set) => ({
-  activeSection: "dashboard",
+  activeSection: "home",
   subNavCollapsed: false,
   setActiveSection: (section) => set({ activeSection: section }),
   toggleSubNav: () => set((s) => ({ subNavCollapsed: !s.subNavCollapsed })),

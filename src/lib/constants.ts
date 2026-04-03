@@ -8,14 +8,15 @@ export interface NavItemDef {
   separated?: boolean;
 }
 
-export const NAV_ITEMS: NavItemDef[] = [
-  { id: "dashboard", label: "대시보드", icon: "LayoutDashboard", href: "/dashboard" },
-  { id: "tickets", label: "티켓", icon: "KanbanSquare", href: "/tickets" },
-  { id: "flowchart", label: "플로차트", icon: "GitBranch", href: "/flowchart" },
-  { id: "documents", label: "문서/스킬", icon: "FileText", href: "/documents" },
-  { id: "agents", label: "에이전트", icon: "Bot", href: "/agents" },
+// Fixed top nav items (teams are injected dynamically between home and skills)
+export const TOP_NAV_ITEMS: NavItemDef[] = [
+  { id: "home", label: "홈", icon: "Home", href: "/home" },
+];
+
+// Fixed bottom-middle nav items (below teams)
+export const BOTTOM_NAV_ITEMS: NavItemDef[] = [
+  { id: "skills", label: "스킬", icon: "BookOpen", href: "/skills", separated: true },
   { id: "governance", label: "거버넌스", icon: "Shield", href: "/governance" },
-  { id: "external", label: "외부 업무", icon: "Briefcase", href: "/external", separated: true },
 ];
 
 export const AGENT_COLORS: Record<string, string> = {

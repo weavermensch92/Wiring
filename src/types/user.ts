@@ -3,7 +3,7 @@ export interface User {
   name: string;
   email: string;
   level: string;
-  team: string;
+  teamIds: string[]; // user can belong to multiple teams
   role: string;
   avatar: string;
 }

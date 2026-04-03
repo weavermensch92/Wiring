@@ -2,103 +2,127 @@
 
 import { usePathname, useRouter } from "next/navigation";
 import { useNavigationStore } from "@/stores/navigation-store";
-import { NAV_ITEMS } from "@/lib/constants";
+import { TOP_NAV_ITEMS, BOTTOM_NAV_ITEMS } from "@/lib/constants";
+import { getTeamsForUser } from "@/dummy/teams";
+import { CURRENT_USER } from "@/dummy/users";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
-import { CURRENT_USER } from "@/dummy/users";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
-  LayoutDashboard,
-  KanbanSquare,
-  GitBranch,
-  FileText,
-  Bot,
+  Home,
+  BookOpen,
   Shield,
-  Briefcase,
   Settings,
 } from "lucide-react";
 import { NavSection } from "@/types/navigation";
 
 const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
-  LayoutDashboard,
-  KanbanSquare,
-  GitBranch,
-  FileText,
-  Bot,
+  Home,
+  BookOpen,
   Shield,
-  Briefcase,
   Settings,
 };
+
+const userTeams = getTeamsForUser(CURRENT_USER.id);
 
 export function IconNav() {
   const router = useRouter();
   const pathname = usePathname();
-  const { setActiveSection } = useNavigationStore();
+  const { activeSection, setActiveSection } = useNavigationStore();
 
   const handleNav = (id: NavSection, href: string) => {
     setActiveSection(id);
     router.push(href);
   };
 
-  const isActive = (href: string) => pathname.startsWith(href);
+  const isActive = (section: NavSection) => activeSection === section;
 
   return (
     <nav className="flex flex-col items-center w-16 h-screen bg-[var(--wiring-bg-secondary)] border-r border-[var(--wiring-glass-border)] shrink-0">
       {/* Logo */}
-      <div className="flex items-center justify-center w-full h-14 mb-2">
+      <div className="flex items-center justify-center w-full h-14 mb-2 shrink-0">
         <span className="text-sm font-bold text-[var(--wiring-accent)]">W</span>
       </div>
 
-      {/* Main nav items */}
-      <div className="flex flex-col items-center gap-1 flex-1">
-        {NAV_ITEMS.map((item) => {
+      {/* Top fixed: Home */}
+      <div className="flex flex-col items-center gap-1 shrink-0">
+        {TOP_NAV_ITEMS.map((item) => {
           const Icon = ICON_MAP[item.icon];
-          const active = isActive(item.href);
+          const active = isActive(item.id);
           return (
-            <div key={item.id}>
-              {item.separated && (
-                <Separator className="my-2 w-8 mx-auto bg-[var(--wiring-glass-border)]" />
-              )}
-              <Tooltip>
-                <TooltipTrigger
-                  onClick={() => handleNav(item.id, item.href)}
-                  className={`relative flex items-center justify-center w-11 h-11 rounded-lg transition-all duration-150 cursor-pointer ${
-                    active
-                      ? "bg-[var(--wiring-accent-glow)] text-[var(--wiring-accent)]"
-                      : "text-[var(--wiring-text-secondary)] hover:bg-[var(--wiring-glass-hover)] hover:text-[var(--wiring-text-primary)]"
-                  }`}
-                >
-                  {active && (
-                    <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[2px] h-5 bg-[var(--wiring-accent)] rounded-r" />
-                  )}
-                  {Icon && <Icon className="w-5 h-5" />}
-                </TooltipTrigger>
-                <TooltipContent side="right" sideOffset={8}>
-                  {item.label}
-                </TooltipContent>
-              </Tooltip>
-            </div>
+            <NavButton
+              key={item.id}
+              active={active}
+              label={item.label}
+              onClick={() => handleNav(item.id, item.href)}
+            >
+              {Icon && <Icon className="w-5 h-5" />}
+            </NavButton>
           );
         })}
       </div>
 
-      {/* Bottom: Settings + Profile */}
-      <div className="flex flex-col items-center gap-1 pb-4">
-        <Tooltip>
-          <TooltipTrigger
-            onClick={() => handleNav("settings", "/settings")}
-            className={`flex items-center justify-center w-11 h-11 rounded-lg transition-all duration-150 cursor-pointer ${
-              pathname.startsWith("/settings")
-                ? "bg-[var(--wiring-accent-glow)] text-[var(--wiring-accent)]"
-                : "text-[var(--wiring-text-secondary)] hover:bg-[var(--wiring-glass-hover)] hover:text-[var(--wiring-text-primary)]"
-            }`}
-          >
-            <Settings className="w-5 h-5" />
-          </TooltipTrigger>
-          <TooltipContent side="right" sideOffset={8}>
-            설정
-          </TooltipContent>
-        </Tooltip>
+      <Separator className="my-2 w-8 bg-[var(--wiring-glass-border)]" />
+
+      {/* Dynamic: Teams (scrollable if many) */}
+      <ScrollArea className="flex-1 w-full">
+        <div className="flex flex-col items-center gap-1 py-1">
+          {userTeams.map((team) => {
+            const section: NavSection = `team-${team.id}`;
+            const active = isActive(section);
+            return (
+              <NavButton
+                key={team.id}
+                active={active}
+                label={team.name}
+                onClick={() => handleNav(section, `/team/${team.id}`)}
+              >
+                <div
+                  className="w-8 h-8 rounded-lg flex items-center justify-center text-xs font-semibold transition-all duration-150"
+                  style={{
+                    backgroundColor: active ? team.color + "20" : "var(--wiring-bg-elevated)",
+                    color: active ? team.color : "var(--wiring-text-secondary)",
+                    border: active ? `1.5px solid ${team.color}` : "1.5px solid transparent",
+                  }}
+                >
+                  {team.abbreviation}
+                </div>
+              </NavButton>
+            );
+          })}
+        </div>
+      </ScrollArea>
+
+      <Separator className="my-2 w-8 bg-[var(--wiring-glass-border)]" />
+
+      {/* Bottom-middle fixed: Skills + Governance */}
+      <div className="flex flex-col items-center gap-1 shrink-0">
+        {BOTTOM_NAV_ITEMS.map((item) => {
+          const Icon = ICON_MAP[item.icon];
+          const active = isActive(item.id);
+          return (
+            <NavButton
+              key={item.id}
+              active={active}
+              label={item.label}
+              onClick={() => handleNav(item.id, item.href)}
+            >
+              {Icon && <Icon className="w-5 h-5" />}
+            </NavButton>
+          );
+        })}
+      </div>
+
+      {/* Bottom fixed: Settings + Profile */}
+      <div className="flex flex-col items-center gap-1 pb-4 pt-2 shrink-0">
+        <NavButton
+          active={isActive("settings")}
+          label="설정"
+          onClick={() => handleNav("settings", "/settings")}
+        >
+          <Settings className="w-5 h-5" />
+        </NavButton>
 
         <Tooltip>
           <TooltipTrigger className="flex items-center justify-center w-11 h-11 cursor-pointer">
@@ -114,5 +138,38 @@ export function IconNav() {
         </Tooltip>
       </div>
     </nav>
+  );
+}
+
+function NavButton({
+  active,
+  label,
+  onClick,
+  children,
+}: {
+  active: boolean;
+  label: string;
+  onClick: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <Tooltip>
+      <TooltipTrigger
+        onClick={onClick}
+        className={`relative flex items-center justify-center w-11 h-11 rounded-lg transition-all duration-150 cursor-pointer ${
+          active
+            ? "bg-[var(--wiring-accent-glow)] text-[var(--wiring-accent)]"
+            : "text-[var(--wiring-text-secondary)] hover:bg-[var(--wiring-glass-hover)] hover:text-[var(--wiring-text-primary)]"
+        }`}
+      >
+        {active && (
+          <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[2px] h-5 bg-[var(--wiring-accent)] rounded-r" />
+        )}
+        {children}
+      </TooltipTrigger>
+      <TooltipContent side="right" sideOffset={8}>
+        {label}
+      </TooltipContent>
+    </Tooltip>
   );
 }

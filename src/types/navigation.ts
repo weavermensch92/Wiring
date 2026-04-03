@@ -1,17 +1,26 @@
+// NavSection can be a fixed section or a dynamic team section (team-{teamId})
 export type NavSection =
-  | "dashboard"
-  | "tickets"
-  | "flowchart"
-  | "documents"
-  | "agents"
+  | "home"
+  | "skills"
   | "governance"
-  | "external"
-  | "settings";
+  | "settings"
+  | `team-${string}`;
+
+export function isTeamSection(section: NavSection): section is `team-${string}` {
+  return section.startsWith("team-");
+}
+
+export function getTeamIdFromSection(section: NavSection): string | null {
+  if (isTeamSection(section)) {
+    return section.replace("team-", "");
+  }
+  return null;
+}
 
 export interface NavItem {
   id: NavSection;
   label: string;
-  icon: string; // lucide icon name
+  icon: string;
   href: string;
-  separated?: boolean; // visual separator before this item
+  separated?: boolean;
 }

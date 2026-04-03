@@ -3,6 +3,7 @@
 import { usePathname } from "next/navigation";
 import { useLayoutStore } from "@/stores/layout-store";
 import { useHITLStore } from "@/stores/hitl-store";
+import { DUMMY_TEAMS } from "@/dummy/teams";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import {
@@ -14,15 +15,34 @@ import {
 } from "lucide-react";
 
 const BREADCRUMB_MAP: Record<string, string> = {
-  "/dashboard": "대시보드",
+  "/home": "홈",
+  "/skills": "스킬",
+  "/governance": "거버넌스",
+  "/settings": "설정",
   "/tickets": "티켓 관리",
   "/flowchart": "플로차트",
-  "/documents": "문서 / 스킬",
   "/agents": "에이전트",
-  "/governance": "거버넌스",
   "/external": "외부 업무",
-  "/settings": "설정",
+  "/dashboard": "대시보드",
+  "/documents": "문서 / 스킬",
 };
+
+function getBreadcrumb(pathname: string): string {
+  // Check static routes first
+  if (BREADCRUMB_MAP[pathname]) return BREADCRUMB_MAP[pathname];
+
+  // Dynamic team route: /team/team-be → "Backend"
+  const teamMatch = pathname.match(/^\/team\/(.+)$/);
+  if (teamMatch) {
+    const team = DUMMY_TEAMS.find((t) => t.id === teamMatch[1]);
+    return team ? team.name : "팀";
+  }
+
+  // HITL detail route
+  if (pathname.startsWith("/hitl/")) return "HITL 상세";
+
+  return pathname.split("/").pop() || "";
+}
 
 export function TopBar() {
   const pathname = usePathname();
@@ -30,7 +50,7 @@ export function TopBar() {
   const { queueItems } = useHITLStore();
   const waitingCount = queueItems.filter((i) => i.status === "waiting").length;
 
-  const breadcrumb = BREADCRUMB_MAP[pathname] || pathname.split("/").pop() || "";
+  const breadcrumb = getBreadcrumb(pathname);
 
   return (
     <header className="flex items-center h-14 px-4 border-b border-[var(--wiring-glass-border)] bg-[var(--wiring-bg-secondary)] shrink-0">
