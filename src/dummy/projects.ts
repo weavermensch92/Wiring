@@ -1,4 +1,4 @@
-import { Project, Epic, Ticket } from "@/types/project";
+import { Project, Epic, Ticket, Subtask, TicketComment, TicketActivity } from "@/types/project";
 
 export const DUMMY_PROJECTS: Project[] = [
   // 커머스팀 (team-commerce)
@@ -243,7 +243,7 @@ export const DUMMY_TICKETS: Record<string, Ticket[]> = {
   // 상품 이미지 갤러리
   "epic-cm1-1": [
     { id: "t-cm1-1", epicId: "epic-cm1-1", title: "이미지 CDN 연동", description: "S3 + CloudFront 이미지 서빙", status: "done", priority: "high", assignedAgent: "BE", estimatedHours: 8, actualHours: 7, costUsd: 21.0 },
-    { id: "t-cm1-2", epicId: "epic-cm1-1", title: "갤러리 컴포넌트 개발", description: "이미지 슬라이더 + 줌 UI", status: "in_progress", priority: "high", assignedAgent: "FE", assignedHuman: { id: "user-3", name: "김주니어", level: "L1" }, estimatedHours: 12, hitlRequired: true, hitlType: "code_review" },
+    { id: "t-cm1-2", epicId: "epic-cm1-1", title: "갤러리 컴포넌트 개발", description: "이미지 슬라이더 + 줌 UI. Swiper 기반으로 터치/마우스 스와이프를 지원하고, 핀치 줌 + 더블탭 줌 기능을 구현합니다. 기존 FileUploader 컴포넌트와의 인터페이스 호환성을 유지해야 합니다.", status: "in_progress", priority: "high", assignedAgent: "FE", assignedHuman: { id: "user-3", name: "김주니어", level: "L1" }, estimatedHours: 12, hitlRequired: true, hitlType: "code_review", createdAt: "2026-03-25T09:00:00Z", updatedAt: "2026-04-02T14:30:00Z", labels: ["frontend", "component"], subtaskIds: ["sub-1", "sub-2", "sub-3", "sub-4"] },
     { id: "t-cm1-3", epicId: "epic-cm1-1", title: "이미지 최적화 파이프라인", description: "업로드 시 자동 리사이즈/WebP 변환", status: "todo", priority: "medium", assignedAgent: "BE", estimatedHours: 10 },
     { id: "t-cm1-4", epicId: "epic-cm1-1", title: "360도 뷰어 프로토타입", description: "상품 360도 회전 뷰어", status: "backlog", priority: "low", assignedAgent: null, estimatedHours: 16 },
   ],
@@ -264,7 +264,7 @@ export const DUMMY_TICKETS: Record<string, Ticket[]> = {
     { id: "t-py1-1", epicId: "epic-py1-1", title: "PG SDK 초기 연동", description: "신규 PG사 SDK 설치 및 초기 설정", status: "done", priority: "critical", assignedAgent: "BE", estimatedHours: 8, actualHours: 6, costUsd: 18.0 },
     { id: "t-py1-2", epicId: "epic-py1-1", title: "카드 결제 구현", description: "신용/체크카드 결제 로직", status: "done", priority: "critical", assignedAgent: "BE", estimatedHours: 16, actualHours: 14, costUsd: 42.0 },
     { id: "t-py1-3", epicId: "epic-py1-1", title: "간편결제 연동", description: "카카오페이/네이버페이 연동", status: "in_progress", priority: "high", assignedAgent: "BE", estimatedHours: 12 },
-    { id: "t-py1-4", epicId: "epic-py1-1", title: "결제 UI 컴포넌트", description: "결제 수단 선택 + 결제 진행 UI", status: "review", priority: "high", assignedAgent: "FE", assignedHuman: { id: "user-2", name: "이시니어", level: "L2" }, estimatedHours: 10, hitlRequired: true, hitlType: "code_review" },
+    { id: "t-py1-4", epicId: "epic-py1-1", title: "결제 UI 컴포넌트", description: "결제 수단 선택 + 결제 진행 UI. 카드/간편결제/계좌이체 3가지 탭으로 구분하고, 각 결제 수단별 입력 폼을 구현합니다. PG SDK의 결제창 호출 인터페이스와 연동해야 합니다.", status: "review", priority: "high", assignedAgent: "FE", assignedHuman: { id: "user-2", name: "이시니어", level: "L2" }, estimatedHours: 10, hitlRequired: true, hitlType: "code_review", createdAt: "2026-03-20T10:00:00Z", updatedAt: "2026-04-01T16:00:00Z", labels: ["frontend", "payment"], subtaskIds: ["sub-5", "sub-6", "sub-7"] },
     { id: "t-py1-5", epicId: "epic-py1-1", title: "결제 보안 검토", description: "PCI-DSS 준수 여부 검토", status: "todo", priority: "critical", assignedAgent: "GM", estimatedHours: 6, hitlRequired: true, hitlType: "security_approval" },
   ],
   // 정산 배치 시스템
@@ -328,3 +328,53 @@ export function getAllTicketsForProject(projectId: string): Ticket[] {
   const epics = getEpicsForProject(projectId);
   return epics.flatMap((epic) => DUMMY_TICKETS[epic.id] || []);
 }
+
+// ─── Subtasks ───
+
+export const DUMMY_SUBTASKS: Record<string, Subtask[]> = {
+  "t-cm1-2": [
+    { id: "sub-1", ticketId: "t-cm1-2", title: "Swiper 라이브러리 설치 및 기본 설정", completed: true },
+    { id: "sub-2", ticketId: "t-cm1-2", title: "이미지 슬라이더 UI 구현", completed: true },
+    { id: "sub-3", ticketId: "t-cm1-2", title: "핀치 줌 + 더블탭 줌 구현", completed: false },
+    { id: "sub-4", ticketId: "t-cm1-2", title: "FileUploader 호환 인터페이스 정리", completed: false },
+  ],
+  "t-py1-4": [
+    { id: "sub-5", ticketId: "t-py1-4", title: "결제 수단 탭 UI 레이아웃", completed: true },
+    { id: "sub-6", ticketId: "t-py1-4", title: "카드 결제 입력 폼", completed: true },
+    { id: "sub-7", ticketId: "t-py1-4", title: "간편결제 SDK 호출 연동", completed: false },
+  ],
+};
+
+// ─── Comments ───
+
+export const DUMMY_COMMENTS: Record<string, TicketComment[]> = {
+  "t-cm1-2": [
+    { id: "cmt-1", ticketId: "t-cm1-2", author: { type: "agent", name: "SM", id: "agent-sm" }, content: "Swiper 대신 네이티브 Drag API를 사용하는 것을 권장합니다. 번들 크기를 줄일 수 있습니다.", timestamp: "2026-03-26T10:00:00Z" },
+    { id: "cmt-2", ticketId: "t-cm1-2", author: { type: "agent", name: "FE", id: "agent-fe" }, content: "네이티브 API로 전환했습니다. 터치 이벤트 핸들링은 직접 구현하겠습니다.", timestamp: "2026-03-26T11:30:00Z" },
+    { id: "cmt-3", ticketId: "t-cm1-2", author: { type: "human", name: "김주니어", id: "user-3" }, content: "줌 기능 구현 중인데, 모바일에서 핀치 줌과 브라우저 기본 줌이 충돌합니다. touch-action: none 처리가 필요할 것 같습니다.", timestamp: "2026-04-01T14:00:00Z" },
+    { id: "cmt-4", ticketId: "t-cm1-2", author: { type: "agent", name: "FE", id: "agent-fe" }, content: "맞습니다. 갤러리 컨테이너에 touch-action: none을 적용하고, 줌 영역 밖에서는 기본 스크롤이 동작하도록 처리하겠습니다.", timestamp: "2026-04-01T14:20:00Z" },
+  ],
+  "t-py1-4": [
+    { id: "cmt-5", ticketId: "t-py1-4", author: { type: "agent", name: "BE", id: "agent-be" }, content: "결제 API 엔드포인트 준비 완료. POST /api/payments/initiate 로 호출하면 됩니다.", timestamp: "2026-03-28T09:00:00Z" },
+    { id: "cmt-6", ticketId: "t-py1-4", author: { type: "human", name: "이시니어", id: "user-2" }, content: "카드 결제 폼 리뷰 완료. 카드번호 마스킹 처리가 빠져있어서 추가 필요합니다.", timestamp: "2026-04-01T15:00:00Z" },
+  ],
+};
+
+// ─── Activities ───
+
+export const DUMMY_ACTIVITIES: Record<string, TicketActivity[]> = {
+  "t-cm1-2": [
+    { id: "act-1", ticketId: "t-cm1-2", type: "status_change", description: "상태 변경: Backlog → To Do", timestamp: "2026-03-25T09:00:00Z" },
+    { id: "act-2", ticketId: "t-cm1-2", type: "assignment", description: "FE Agent에 배정", timestamp: "2026-03-25T09:05:00Z" },
+    { id: "act-3", ticketId: "t-cm1-2", type: "assignment", description: "김주니어 (L1) 리뷰어로 배정", timestamp: "2026-03-25T09:10:00Z" },
+    { id: "act-4", ticketId: "t-cm1-2", type: "status_change", description: "상태 변경: To Do → In Progress", timestamp: "2026-03-26T10:00:00Z" },
+    { id: "act-5", ticketId: "t-cm1-2", type: "comment", description: "SM Agent가 댓글 작성", timestamp: "2026-03-26T10:00:00Z" },
+    { id: "act-6", ticketId: "t-cm1-2", type: "hitl_request", description: "코드 리뷰 HITL 요청 생성", timestamp: "2026-04-01T14:30:00Z" },
+  ],
+  "t-py1-4": [
+    { id: "act-7", ticketId: "t-py1-4", type: "status_change", description: "상태 변경: To Do → In Progress", timestamp: "2026-03-22T09:00:00Z" },
+    { id: "act-8", ticketId: "t-py1-4", type: "assignment", description: "FE Agent에 배정", timestamp: "2026-03-22T09:05:00Z" },
+    { id: "act-9", ticketId: "t-py1-4", type: "status_change", description: "상태 변경: In Progress → Review", timestamp: "2026-03-31T16:00:00Z" },
+    { id: "act-10", ticketId: "t-py1-4", type: "hitl_request", description: "코드 리뷰 HITL 요청 생성", timestamp: "2026-04-01T10:00:00Z" },
+  ],
+};

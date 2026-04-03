@@ -16,7 +16,7 @@ import { Ticket, TicketStatus } from "@/types/project";
 import { useProjectStore } from "@/stores/project-store";
 import { KanbanColumn } from "./kanban-column";
 import { KanbanCardOverlay } from "./kanban-card";
-import { TicketDetailSheet } from "./ticket-detail-sheet";
+import { TicketDetailDialog } from "./ticket-detail-dialog";
 import { AddTicketDialog } from "./add-ticket-dialog";
 const COLUMNS: TicketStatus[] = ["backlog", "todo", "in_progress", "review", "done"];
 
@@ -155,7 +155,7 @@ export function KanbanBoard({ projectId }: { projectId: string }) {
         </DragOverlay>
       </DndContext>
 
-      <TicketDetailSheet
+      <TicketDetailDialog
         ticket={selectedTicket}
         open={sheetOpen}
         onOpenChange={setSheetOpen}

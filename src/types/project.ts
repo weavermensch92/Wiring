@@ -44,6 +44,9 @@ export interface Ticket {
   hitlRequired?: boolean;
   hitlType?: string;
   dependsOn?: string[];
+  createdAt?: string;
+  updatedAt?: string;
+  labels?: string[];
 }
 
 export interface Subtask {
@@ -51,4 +54,20 @@ export interface Subtask {
   ticketId: string;
   title: string;
   completed: boolean;
+}
+
+export interface TicketComment {
+  id: string;
+  ticketId: string;
+  author: { type: "human" | "agent"; name: string; id: string };
+  content: string;
+  timestamp: string;
+}
+
+export interface TicketActivity {
+  id: string;
+  ticketId: string;
+  type: "status_change" | "assignment" | "comment" | "hitl_request" | "cost_update";
+  description: string;
+  timestamp: string;
 }
