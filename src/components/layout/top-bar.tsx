@@ -4,6 +4,7 @@ import { usePathname } from "next/navigation";
 import { useLayoutStore } from "@/stores/layout-store";
 import { useHITLStore } from "@/stores/hitl-store";
 import { DUMMY_TEAMS } from "@/dummy/teams";
+import { DUMMY_PROJECTS } from "@/dummy/projects";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import {
@@ -31,7 +32,17 @@ function getBreadcrumb(pathname: string): string {
   // Check static routes first
   if (BREADCRUMB_MAP[pathname]) return BREADCRUMB_MAP[pathname];
 
-  // Dynamic team route: /team/team-be → "Backend"
+  // Dynamic project route: /team/{teamId}/project/{projectId}
+  const projectMatch = pathname.match(/^\/team\/(.+?)\/project\/(.+)$/);
+  if (projectMatch) {
+    const team = DUMMY_TEAMS.find((t) => t.id === projectMatch[1]);
+    const project = DUMMY_PROJECTS.find((p) => p.id === projectMatch[2]);
+    const teamName = team?.name ?? "팀";
+    const projectName = project?.name ?? "프로젝트";
+    return `${teamName} / ${projectName}`;
+  }
+
+  // Dynamic team route: /team/{teamId}
   const teamMatch = pathname.match(/^\/team\/(.+)$/);
   if (teamMatch) {
     const team = DUMMY_TEAMS.find((t) => t.id === teamMatch[1]);

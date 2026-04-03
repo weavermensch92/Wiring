@@ -7,11 +7,3 @@ export interface Team {
   memberIds: string[];
   projectIds: string[];
 }
-
-export interface TeamProject {
-  id: string;
-  teamId: string;
-  name: string;
-  ticketCount: number;
-  status: "active" | "paused" | "completed";
-}

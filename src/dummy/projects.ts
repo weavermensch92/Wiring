@@ -1,146 +1,330 @@
 import { Project, Epic, Ticket } from "@/types/project";
 
 export const DUMMY_PROJECTS: Project[] = [
+  // 커머스팀 (team-commerce)
   {
-    id: "proj-1",
-    name: "SNS 서비스 v2.0",
-    description: "소셜 네트워크 서비스 전면 리뉴얼",
+    id: "proj-cm-1",
+    teamId: "team-commerce",
+    name: "상품 상세 리뉴얼",
+    description: "상품 상세 페이지 전면 리뉴얼",
     startDate: "2026-03-01",
-    endDate: "2026-06-30",
-    memberCount: 12,
+    endDate: "2026-05-31",
+    memberCount: 5,
     status: "active",
   },
   {
-    id: "proj-2",
-    name: "결제 시스템 마이그레이션",
-    description: "PG사 변경에 따른 결제 모듈 전면 교체",
-    startDate: "2026-04-01",
+    id: "proj-cm-2",
+    teamId: "team-commerce",
+    name: "장바구니 최적화",
+    description: "장바구니 UX 개선 및 성능 최적화",
+    startDate: "2026-03-15",
+    endDate: "2026-04-30",
+    memberCount: 3,
+    status: "active",
+  },
+  // 결제팀 (team-payment)
+  {
+    id: "proj-py-1",
+    teamId: "team-payment",
+    name: "PG 연동 v2",
+    description: "신규 PG사 결제 모듈 연동",
+    startDate: "2026-02-01",
     endDate: "2026-05-15",
-    memberCount: 6,
+    memberCount: 4,
+    status: "active",
+  },
+  {
+    id: "proj-py-2",
+    teamId: "team-payment",
+    name: "정산 자동화",
+    description: "정산 프로세스 자동화 시스템 구축",
+    startDate: "2026-04-01",
+    endDate: "2026-06-30",
+    memberCount: 2,
+    status: "paused",
+  },
+  // 콘텐츠팀 (team-content)
+  {
+    id: "proj-ct-1",
+    teamId: "team-content",
+    name: "에디터 고도화",
+    description: "콘텐츠 에디터 기능 확장 및 개선",
+    startDate: "2026-03-01",
+    endDate: "2026-06-15",
+    memberCount: 4,
+    status: "active",
+  },
+  // 플랫폼팀 (team-platform)
+  {
+    id: "proj-pf-1",
+    teamId: "team-platform",
+    name: "CI/CD 파이프라인 개선",
+    description: "빌드/배포 파이프라인 최적화",
+    startDate: "2026-03-10",
+    endDate: "2026-04-30",
+    memberCount: 3,
+    status: "active",
+  },
+  {
+    id: "proj-pf-2",
+    teamId: "team-platform",
+    name: "모니터링 대시보드",
+    description: "인프라 및 서비스 모니터링 대시보드",
+    startDate: "2026-02-15",
+    endDate: "2026-05-31",
+    memberCount: 3,
+    status: "active",
+  },
+  {
+    id: "proj-pf-3",
+    teamId: "team-platform",
+    name: "API Gateway 마이그레이션",
+    description: "API Gateway 신규 아키텍처 이관",
+    startDate: "2026-01-15",
+    endDate: "2026-06-30",
+    memberCount: 5,
+    status: "paused",
+  },
+  // 그로스팀 (team-growth)
+  {
+    id: "proj-gr-1",
+    teamId: "team-growth",
+    name: "온보딩 퍼널 개선",
+    description: "신규 유저 온보딩 전환율 개선",
+    startDate: "2026-03-01",
+    endDate: "2026-05-15",
+    memberCount: 3,
     status: "active",
   },
 ];
 
 export const DUMMY_EPICS: Record<string, Epic[]> = {
-  "proj-1": [
+  "proj-cm-1": [
     {
-      id: "epic-1",
-      projectId: "proj-1",
-      title: "이미지 공유 기능",
-      description: "사용자가 이미지를 업로드하고 피드에 공유하는 기능",
+      id: "epic-cm1-1",
+      projectId: "proj-cm-1",
+      title: "상품 이미지 갤러리",
+      description: "상품 이미지 뷰어 및 확대/스와이프 기능",
       status: "in_progress",
       priority: "high",
-      ticketCount: 6,
-      completedTickets: 2,
-      estimatedCost: 245.0,
-      estimatedDays: 14,
-    },
-    {
-      id: "epic-2",
-      projectId: "proj-1",
-      title: "피드 알고리즘 개선",
-      description: "개인화 추천 피드 알고리즘 v2",
-      status: "backlog",
-      priority: "medium",
       ticketCount: 4,
-      completedTickets: 0,
+      completedTickets: 1,
       estimatedCost: 180.0,
       estimatedDays: 10,
-      dependsOn: ["epic-1"],
     },
     {
-      id: "epic-3",
-      projectId: "proj-1",
-      title: "성능 최적화",
-      description: "API 응답 속도 및 프론트엔드 번들 최적화",
+      id: "epic-cm1-2",
+      projectId: "proj-cm-1",
+      title: "상품 리뷰 시스템",
+      description: "리뷰 작성/조회/평점 기능",
       status: "backlog",
-      priority: "low",
+      priority: "medium",
       ticketCount: 3,
       completedTickets: 0,
-      estimatedCost: 120.0,
-      estimatedDays: 7,
+      estimatedCost: 140.0,
+      estimatedDays: 8,
+    },
+  ],
+  "proj-cm-2": [
+    {
+      id: "epic-cm2-1",
+      projectId: "proj-cm-2",
+      title: "장바구니 UI 개선",
+      description: "장바구니 페이지 UX 리디자인",
+      status: "in_progress",
+      priority: "high",
+      ticketCount: 3,
+      completedTickets: 1,
+      estimatedCost: 90.0,
+      estimatedDays: 5,
+    },
+  ],
+  "proj-py-1": [
+    {
+      id: "epic-py1-1",
+      projectId: "proj-py-1",
+      title: "결제 모듈 연동",
+      description: "신규 PG사 SDK 연동 및 테스트",
+      status: "in_progress",
+      priority: "critical",
+      ticketCount: 5,
+      completedTickets: 2,
+      estimatedCost: 320.0,
+      estimatedDays: 15,
+    },
+  ],
+  "proj-py-2": [
+    {
+      id: "epic-py2-1",
+      projectId: "proj-py-2",
+      title: "정산 배치 시스템",
+      description: "일별/주별 자동 정산 배치",
+      status: "backlog",
+      priority: "medium",
+      ticketCount: 3,
+      completedTickets: 0,
+      estimatedCost: 200.0,
+      estimatedDays: 12,
+    },
+  ],
+  "proj-ct-1": [
+    {
+      id: "epic-ct1-1",
+      projectId: "proj-ct-1",
+      title: "블록 에디터",
+      description: "블록 기반 콘텐츠 에디터 구현",
+      status: "in_progress",
+      priority: "high",
+      ticketCount: 4,
+      completedTickets: 1,
+      estimatedCost: 250.0,
+      estimatedDays: 14,
+    },
+  ],
+  "proj-pf-1": [
+    {
+      id: "epic-pf1-1",
+      projectId: "proj-pf-1",
+      title: "빌드 속도 개선",
+      description: "CI 빌드 시간 50% 단축",
+      status: "in_progress",
+      priority: "high",
+      ticketCount: 3,
+      completedTickets: 1,
+      estimatedCost: 80.0,
+      estimatedDays: 5,
+    },
+  ],
+  "proj-pf-2": [
+    {
+      id: "epic-pf2-1",
+      projectId: "proj-pf-2",
+      title: "메트릭 수집",
+      description: "서비스 메트릭 수집 파이프라인",
+      status: "in_progress",
+      priority: "medium",
+      ticketCount: 4,
+      completedTickets: 2,
+      estimatedCost: 150.0,
+      estimatedDays: 10,
+    },
+  ],
+  "proj-pf-3": [
+    {
+      id: "epic-pf3-1",
+      projectId: "proj-pf-3",
+      title: "라우팅 마이그레이션",
+      description: "기존 API 라우팅 신규 Gateway로 이관",
+      status: "backlog",
+      priority: "high",
+      ticketCount: 6,
+      completedTickets: 0,
+      estimatedCost: 400.0,
+      estimatedDays: 20,
+    },
+  ],
+  "proj-gr-1": [
+    {
+      id: "epic-gr1-1",
+      projectId: "proj-gr-1",
+      title: "온보딩 플로우 리디자인",
+      description: "단계별 온보딩 UX 개선",
+      status: "in_progress",
+      priority: "high",
+      ticketCount: 5,
+      completedTickets: 2,
+      estimatedCost: 200.0,
+      estimatedDays: 12,
     },
   ],
 };
 
 export const DUMMY_TICKETS: Record<string, Ticket[]> = {
-  "epic-1": [
-    {
-      id: "ticket-1",
-      epicId: "epic-1",
-      title: "이미지 업로드 API 개발",
-      description: "S3 + CDN 기반 이미지 업로드 엔드포인트 구현",
-      status: "done",
-      priority: "high",
-      assignedAgent: "BE",
-      assignedHuman: null,
-      estimatedHours: 16,
-      actualHours: 14,
-      costUsd: 42.0,
-      subtaskIds: ["sub-1", "sub-2", "sub-3"],
-    },
-    {
-      id: "ticket-2",
-      epicId: "epic-1",
-      title: "이미지 리사이징 파이프라인",
-      description: "업로드된 이미지 자동 리사이징 + 썸네일 생성",
-      status: "done",
-      priority: "high",
-      assignedAgent: "BE",
-      assignedHuman: null,
-      estimatedHours: 12,
-      actualHours: 10,
-      costUsd: 30.0,
-    },
-    {
-      id: "ticket-3",
-      epicId: "epic-1",
-      title: "ImageUploader 컴포넌트 개발",
-      description: "프론트엔드 이미지 업로드 + 미리보기 컴포넌트",
-      status: "review",
-      priority: "high",
-      assignedAgent: "FE",
-      assignedHuman: { id: "user-3", name: "김주니어", level: "L1" },
-      estimatedHours: 8,
-      hitlRequired: true,
-      hitlType: "code_review",
-    },
-    {
-      id: "ticket-4",
-      epicId: "epic-1",
-      title: "공유 링크 생성 API",
-      description: "이미지 공유용 단축 URL 생성 로직",
-      status: "in_progress",
-      priority: "medium",
-      assignedAgent: "BE",
-      assignedHuman: null,
-      estimatedHours: 6,
-      costUsd: 18.0,
-    },
-    {
-      id: "ticket-5",
-      epicId: "epic-1",
-      title: "이미지 뷰어 UI",
-      description: "피드 내 이미지 확대/스와이프 뷰어",
-      status: "todo",
-      priority: "medium",
-      assignedAgent: "FE",
-      assignedHuman: null,
-      estimatedHours: 10,
-      dependsOn: ["ticket-3"],
-    },
-    {
-      id: "ticket-6",
-      epicId: "epic-1",
-      title: "보안 검토",
-      description: "이미지 업로드 관련 보안 정책 검토",
-      status: "in_progress",
-      priority: "high",
-      assignedAgent: "GM",
-      assignedHuman: null,
-      estimatedHours: 4,
-      hitlRequired: true,
-      hitlType: "security_approval",
-    },
+  // 상품 이미지 갤러리
+  "epic-cm1-1": [
+    { id: "t-cm1-1", epicId: "epic-cm1-1", title: "이미지 CDN 연동", description: "S3 + CloudFront 이미지 서빙", status: "done", priority: "high", assignedAgent: "BE", estimatedHours: 8, actualHours: 7, costUsd: 21.0 },
+    { id: "t-cm1-2", epicId: "epic-cm1-1", title: "갤러리 컴포넌트 개발", description: "이미지 슬라이더 + 줌 UI", status: "in_progress", priority: "high", assignedAgent: "FE", assignedHuman: { id: "user-3", name: "김주니어", level: "L1" }, estimatedHours: 12, hitlRequired: true, hitlType: "code_review" },
+    { id: "t-cm1-3", epicId: "epic-cm1-1", title: "이미지 최적화 파이프라인", description: "업로드 시 자동 리사이즈/WebP 변환", status: "todo", priority: "medium", assignedAgent: "BE", estimatedHours: 10 },
+    { id: "t-cm1-4", epicId: "epic-cm1-1", title: "360도 뷰어 프로토타입", description: "상품 360도 회전 뷰어", status: "backlog", priority: "low", assignedAgent: null, estimatedHours: 16 },
+  ],
+  // 상품 리뷰 시스템
+  "epic-cm1-2": [
+    { id: "t-cm1-5", epicId: "epic-cm1-2", title: "리뷰 API 설계", description: "리뷰 CRUD API 엔드포인트", status: "backlog", priority: "medium", assignedAgent: "BE", estimatedHours: 8 },
+    { id: "t-cm1-6", epicId: "epic-cm1-2", title: "리뷰 작성 UI", description: "별점 + 텍스트 리뷰 폼", status: "backlog", priority: "medium", assignedAgent: "FE", estimatedHours: 6 },
+    { id: "t-cm1-7", epicId: "epic-cm1-2", title: "리뷰 모더레이션", description: "AI 기반 리뷰 필터링", status: "backlog", priority: "low", assignedAgent: "GM", estimatedHours: 4, hitlRequired: true, hitlType: "security_approval" },
+  ],
+  // 장바구니 UI 개선
+  "epic-cm2-1": [
+    { id: "t-cm2-1", epicId: "epic-cm2-1", title: "장바구니 레이아웃 리디자인", description: "새 디자인 시안 적용", status: "done", priority: "high", assignedAgent: "FE", estimatedHours: 8, actualHours: 9, costUsd: 27.0 },
+    { id: "t-cm2-2", epicId: "epic-cm2-1", title: "수량 변경 UX 개선", description: "인라인 수량 편집 + 애니메이션", status: "in_progress", priority: "medium", assignedAgent: "FE", estimatedHours: 4 },
+    { id: "t-cm2-3", epicId: "epic-cm2-1", title: "장바구니 성능 최적화", description: "리렌더링 최소화 + 가상화", status: "todo", priority: "medium", assignedAgent: "FE", estimatedHours: 6 },
+  ],
+  // 결제 모듈 연동
+  "epic-py1-1": [
+    { id: "t-py1-1", epicId: "epic-py1-1", title: "PG SDK 초기 연동", description: "신규 PG사 SDK 설치 및 초기 설정", status: "done", priority: "critical", assignedAgent: "BE", estimatedHours: 8, actualHours: 6, costUsd: 18.0 },
+    { id: "t-py1-2", epicId: "epic-py1-1", title: "카드 결제 구현", description: "신용/체크카드 결제 로직", status: "done", priority: "critical", assignedAgent: "BE", estimatedHours: 16, actualHours: 14, costUsd: 42.0 },
+    { id: "t-py1-3", epicId: "epic-py1-1", title: "간편결제 연동", description: "카카오페이/네이버페이 연동", status: "in_progress", priority: "high", assignedAgent: "BE", estimatedHours: 12 },
+    { id: "t-py1-4", epicId: "epic-py1-1", title: "결제 UI 컴포넌트", description: "결제 수단 선택 + 결제 진행 UI", status: "review", priority: "high", assignedAgent: "FE", assignedHuman: { id: "user-2", name: "이시니어", level: "L2" }, estimatedHours: 10, hitlRequired: true, hitlType: "code_review" },
+    { id: "t-py1-5", epicId: "epic-py1-1", title: "결제 보안 검토", description: "PCI-DSS 준수 여부 검토", status: "todo", priority: "critical", assignedAgent: "GM", estimatedHours: 6, hitlRequired: true, hitlType: "security_approval" },
+  ],
+  // 정산 배치 시스템
+  "epic-py2-1": [
+    { id: "t-py2-1", epicId: "epic-py2-1", title: "정산 스케줄러 설계", description: "일별/주별 정산 배치 스케줄러", status: "backlog", priority: "medium", assignedAgent: "BE", estimatedHours: 10 },
+    { id: "t-py2-2", epicId: "epic-py2-1", title: "정산 리포트 API", description: "정산 결과 조회 API", status: "backlog", priority: "medium", assignedAgent: "BE", estimatedHours: 8 },
+    { id: "t-py2-3", epicId: "epic-py2-1", title: "정산 대시보드", description: "정산 현황 대시보드 UI", status: "backlog", priority: "low", assignedAgent: "FE", estimatedHours: 12 },
+  ],
+  // 블록 에디터
+  "epic-ct1-1": [
+    { id: "t-ct1-1", epicId: "epic-ct1-1", title: "에디터 코어 설계", description: "Tiptap 기반 에디터 아키텍처", status: "done", priority: "high", assignedAgent: "FE", estimatedHours: 12, actualHours: 10, costUsd: 30.0 },
+    { id: "t-ct1-2", epicId: "epic-ct1-1", title: "블록 타입 구현", description: "텍스트/이미지/코드/테이블 블록", status: "in_progress", priority: "high", assignedAgent: "FE", estimatedHours: 16 },
+    { id: "t-ct1-3", epicId: "epic-ct1-1", title: "실시간 협업", description: "WebSocket 기반 동시 편집", status: "todo", priority: "medium", assignedAgent: "BE", estimatedHours: 20, dependsOn: ["t-ct1-2"] },
+    { id: "t-ct1-4", epicId: "epic-ct1-1", title: "에디터 접근 권한", description: "문서별 읽기/쓰기 권한 관리", status: "backlog", priority: "medium", assignedAgent: "GM", estimatedHours: 6, hitlRequired: true, hitlType: "security_approval" },
+  ],
+  // 빌드 속도 개선
+  "epic-pf1-1": [
+    { id: "t-pf1-1", epicId: "epic-pf1-1", title: "캐시 레이어 도입", description: "빌드 캐시 계층 구성", status: "done", priority: "high", assignedAgent: "BE", estimatedHours: 6, actualHours: 5, costUsd: 15.0 },
+    { id: "t-pf1-2", epicId: "epic-pf1-1", title: "병렬 빌드 구성", description: "멀티스테이지 병렬 빌드", status: "in_progress", priority: "high", assignedAgent: "BE", estimatedHours: 8 },
+    { id: "t-pf1-3", epicId: "epic-pf1-1", title: "빌드 메트릭 수집", description: "빌드 시간 추적 대시보드", status: "todo", priority: "medium", assignedAgent: "FE", estimatedHours: 4 },
+  ],
+  // 메트릭 수집
+  "epic-pf2-1": [
+    { id: "t-pf2-1", epicId: "epic-pf2-1", title: "메트릭 수집기", description: "Prometheus 메트릭 수집 설정", status: "done", priority: "medium", assignedAgent: "BE", estimatedHours: 8, actualHours: 7, costUsd: 21.0 },
+    { id: "t-pf2-2", epicId: "epic-pf2-1", title: "Grafana 대시보드", description: "메트릭 시각화 대시보드 구성", status: "done", priority: "medium", assignedAgent: "BE", estimatedHours: 6, actualHours: 5, costUsd: 15.0 },
+    { id: "t-pf2-3", epicId: "epic-pf2-1", title: "알림 규칙 설정", description: "임계값 기반 알림 설정", status: "in_progress", priority: "high", assignedAgent: "BE", estimatedHours: 4 },
+    { id: "t-pf2-4", epicId: "epic-pf2-1", title: "커스텀 메트릭 UI", description: "팀별 커스텀 대시보드 빌더", status: "todo", priority: "low", assignedAgent: "FE", estimatedHours: 10 },
+  ],
+  // 라우팅 마이그레이션
+  "epic-pf3-1": [
+    { id: "t-pf3-1", epicId: "epic-pf3-1", title: "라우팅 규칙 매핑", description: "기존 → 신규 라우팅 테이블 매핑", status: "backlog", priority: "high", assignedAgent: "BE", estimatedHours: 8 },
+    { id: "t-pf3-2", epicId: "epic-pf3-1", title: "카나리 배포 설정", description: "점진적 트래픽 전환 설정", status: "backlog", priority: "high", assignedAgent: "BE", estimatedHours: 10 },
+    { id: "t-pf3-3", epicId: "epic-pf3-1", title: "롤백 전략", description: "장애 시 즉시 롤백 메커니즘", status: "backlog", priority: "critical", assignedAgent: "BE", estimatedHours: 6, hitlRequired: true, hitlType: "security_approval" },
+    { id: "t-pf3-4", epicId: "epic-pf3-1", title: "API 호환성 테스트", description: "모든 API 엔드포인트 호환성 검증", status: "backlog", priority: "high", assignedAgent: "BE", estimatedHours: 12 },
+    { id: "t-pf3-5", epicId: "epic-pf3-1", title: "모니터링 연동", description: "신규 Gateway 메트릭 연동", status: "backlog", priority: "medium", assignedAgent: "BE", estimatedHours: 4, dependsOn: ["t-pf3-2"] },
+    { id: "t-pf3-6", epicId: "epic-pf3-1", title: "문서화", description: "마이그레이션 가이드 작성", status: "backlog", priority: "low", assignedAgent: "PM", estimatedHours: 4 },
+  ],
+  // 온보딩 플로우 리디자인
+  "epic-gr1-1": [
+    { id: "t-gr1-1", epicId: "epic-gr1-1", title: "온보딩 A/B 테스트 설계", description: "전환율 개선 가설 수립 및 실험 설계", status: "done", priority: "high", assignedAgent: "PM", estimatedHours: 6, actualHours: 5, costUsd: 15.0 },
+    { id: "t-gr1-2", epicId: "epic-gr1-1", title: "스텝별 UI 컴포넌트", description: "온보딩 스텝 위저드 UI", status: "done", priority: "high", assignedAgent: "FE", estimatedHours: 10, actualHours: 9, costUsd: 27.0 },
+    { id: "t-gr1-3", epicId: "epic-gr1-1", title: "프로그레스 트래킹", description: "온보딩 진행률 추적 로직", status: "in_progress", priority: "medium", assignedAgent: "BE", estimatedHours: 6 },
+    { id: "t-gr1-4", epicId: "epic-gr1-1", title: "개인화 추천", description: "유저 프로필 기반 추천 콘텐츠", status: "todo", priority: "medium", assignedAgent: "BE", estimatedHours: 8 },
+    { id: "t-gr1-5", epicId: "epic-gr1-1", title: "분석 대시보드", description: "퍼널별 전환율 시각화", status: "backlog", priority: "low", assignedAgent: "FE", estimatedHours: 10 },
   ],
 };
+
+export function getProjectsForTeam(teamId: string): Project[] {
+  return DUMMY_PROJECTS.filter((p) => p.teamId === teamId);
+}
+
+export function getEpicsForProject(projectId: string): Epic[] {
+  return DUMMY_EPICS[projectId] || [];
+}
+
+export function getTicketsForEpic(epicId: string): Ticket[] {
+  return DUMMY_TICKETS[epicId] || [];
+}
+
+export function getAllTicketsForProject(projectId: string): Ticket[] {
+  const epics = getEpicsForProject(projectId);
+  return epics.flatMap((epic) => DUMMY_TICKETS[epic.id] || []);
+}

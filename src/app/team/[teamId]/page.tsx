@@ -1,9 +1,11 @@
 "use client";
 
 import { use } from "react";
-import { DUMMY_TEAMS, getProjectsForTeam } from "@/dummy/teams";
+import { DUMMY_TEAMS } from "@/dummy/teams";
+import { getProjectsForTeam, getAllTicketsForProject } from "@/dummy/projects";
 import { DUMMY_USERS } from "@/dummy/users";
 import { Badge } from "@/components/ui/badge";
+import Link from "next/link";
 
 export default function TeamPage({ params }: { params: Promise<{ teamId: string }> }) {
   const { teamId } = use(params);
@@ -18,6 +20,8 @@ export default function TeamPage({ params }: { params: Promise<{ teamId: string 
       </div>
     );
   }
+
+  const totalTickets = projects.reduce((sum, p) => sum + getAllTicketsForProject(p.id).length, 0);
 
   return (
     <div className="p-6">
@@ -47,28 +51,31 @@ export default function TeamPage({ params }: { params: Promise<{ teamId: string 
         </div>
         <div className="glass-panel p-4">
           <p className="text-xs text-[var(--wiring-text-tertiary)] mb-1">전체 티켓</p>
-          <p className="text-2xl font-bold text-[var(--wiring-info)]">
-            {projects.reduce((sum, p) => sum + p.ticketCount, 0)}
-          </p>
+          <p className="text-2xl font-bold text-[var(--wiring-info)]">{totalTickets}</p>
         </div>
       </div>
 
       <h2 className="text-sm font-semibold text-[var(--wiring-text-primary)] mb-3">프로젝트</h2>
       <div className="space-y-2">
-        {projects.map((p) => (
-          <div key={p.id} className="glass-panel p-4 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <span
-                className="w-2 h-2 rounded-full"
-                style={{ backgroundColor: p.status === "active" ? team.color : "var(--wiring-text-tertiary)" }}
-              />
-              <span className="text-sm text-[var(--wiring-text-primary)]">{p.name}</span>
-            </div>
-            <Badge variant="secondary" className="text-xs">
-              {p.ticketCount} 티켓
-            </Badge>
-          </div>
-        ))}
+        {projects.map((p) => {
+          const ticketCount = getAllTicketsForProject(p.id).length;
+          return (
+            <Link key={p.id} href={`/team/${teamId}/project/${p.id}`}>
+              <div className="glass-panel p-4 flex items-center justify-between hover:bg-[var(--wiring-glass-hover)] transition-colors cursor-pointer">
+                <div className="flex items-center gap-3">
+                  <span
+                    className="w-2 h-2 rounded-full"
+                    style={{ backgroundColor: p.status === "active" ? team.color : "var(--wiring-text-tertiary)" }}
+                  />
+                  <span className="text-sm text-[var(--wiring-text-primary)]">{p.name}</span>
+                </div>
+                <Badge variant="secondary" className="text-xs">
+                  {ticketCount} 티켓
+                </Badge>
+              </div>
+            </Link>
+          );
+        })}
       </div>
     </div>
   );

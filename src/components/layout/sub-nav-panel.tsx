@@ -4,13 +4,15 @@ import { useNavigationStore } from "@/stores/navigation-store";
 import { useLayoutStore } from "@/stores/layout-store";
 import { useHITLStore } from "@/stores/hitl-store";
 import { getTeamIdFromSection, isTeamSection, NavSection } from "@/types/navigation";
-import { DUMMY_TEAMS, getProjectsForTeam } from "@/dummy/teams";
+import { DUMMY_TEAMS } from "@/dummy/teams";
+import { getProjectsForTeam, getAllTicketsForProject } from "@/dummy/projects";
 import { DUMMY_USERS } from "@/dummy/users";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { PanelLeftClose, PanelLeftOpen, Search, Inbox, Clock, Star, CalendarDays, BarChart3, MessageSquare, Plus, Users, Bot, Wallet, ChevronDown, ChevronRight } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 function getSectionTitle(section: NavSection): string {
@@ -70,6 +72,7 @@ function HomeSubNav() {
 
 // ─── Team SubNav ───
 function TeamSubNav({ teamId }: { teamId: string }) {
+  const router = useRouter();
   const team = DUMMY_TEAMS.find((t) => t.id === teamId);
   const projects = getProjectsForTeam(teamId);
   const members = DUMMY_USERS.filter((u) => u.teamIds.includes(teamId));
@@ -87,9 +90,10 @@ function TeamSubNav({ teamId }: { teamId: string }) {
           <NavRow
             key={p.id}
             label={p.name}
-            badge={p.ticketCount}
+            badge={getAllTicketsForProject(p.id).length}
             indent
             dot={p.status === "active" ? team.color : "var(--wiring-text-tertiary)"}
+            onClick={() => router.push(`/team/${teamId}/project/${p.id}`)}
           />
         ))}
       </CollapsibleSection>
@@ -225,6 +229,7 @@ function NavRow({
   badgeColor,
   indent,
   dot,
+  onClick,
 }: {
   icon?: React.ReactNode;
   label: string;
@@ -232,9 +237,10 @@ function NavRow({
   badgeColor?: string;
   indent?: boolean;
   dot?: string;
+  onClick?: () => void;
 }) {
   return (
-    <button className={`w-full flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm text-[var(--wiring-text-secondary)] hover:bg-[var(--wiring-glass-hover)] hover:text-[var(--wiring-text-primary)] transition-colors ${indent ? "pl-6" : ""}`}>
+    <button onClick={onClick} className={`w-full flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm text-[var(--wiring-text-secondary)] hover:bg-[var(--wiring-glass-hover)] hover:text-[var(--wiring-text-primary)] transition-colors ${indent ? "pl-6" : ""}`}>
       {dot && <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: dot }} />}
       {icon && <span className="shrink-0 text-[var(--wiring-text-tertiary)]">{icon}</span>}
       <span className="truncate text-left">{label}</span>

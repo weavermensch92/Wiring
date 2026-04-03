@@ -5,6 +5,7 @@ export type Priority = "critical" | "high" | "medium" | "low";
 
 export interface Project {
   id: string;
+  teamId: string;
   name: string;
   description: string;
   startDate: string;
