@@ -2,6 +2,7 @@
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { KanbanBoard } from "./kanban-board";
+import { FlowchartView } from "./flowchart-view";
 import { LayoutGrid, CalendarDays, GitBranch } from "lucide-react";
 
 export function ProjectWorkspace({ projectId }: { projectId: string }) {
@@ -37,13 +38,8 @@ export function ProjectWorkspace({ projectId }: { projectId: string }) {
         </div>
       </TabsContent>
 
-      <TabsContent value="flowchart" className="flex-1 mt-0">
-        <div className="flex items-center justify-center h-full text-[var(--wiring-text-tertiary)]">
-          <div className="text-center">
-            <GitBranch className="w-12 h-12 mx-auto mb-3 opacity-30" />
-            <p className="text-sm">플로차트 뷰 (준비 중)</p>
-          </div>
-        </div>
+      <TabsContent value="flowchart" className="flex-1 mt-0 overflow-hidden">
+        <FlowchartView projectId={projectId} />
       </TabsContent>
     </Tabs>
   );
