@@ -256,7 +256,7 @@ export function ChatPanel() {
       animate={{ x: 0 }}
       exit={{ x: chatPanelWidth }}
       transition={{ duration: 0.25, ease: [0.32, 0.72, 0, 1] }}
-      className="flex flex-col h-full border-l border-[var(--wiring-glass-border)] bg-[var(--wiring-bg-secondary)] shrink-0"
+      className="flex flex-col h-full overflow-hidden border-l border-[var(--wiring-glass-border)] bg-[var(--wiring-bg-secondary)] shrink-0"
       style={{ width: chatPanelWidth }}
     >
       {/* Header */}
@@ -280,7 +280,7 @@ export function ChatPanel() {
       </div>
 
       {/* Messages */}
-      <ScrollArea className="flex-1 px-4 py-3">
+      <ScrollArea className="flex-1 min-h-0 px-4 py-3">
         <div className="space-y-3">
           {messages.length === 0 && (
             <div className="py-6 text-center">
