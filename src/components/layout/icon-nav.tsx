@@ -14,6 +14,7 @@ import {
   BookOpen,
   Shield,
   Settings,
+  BarChart3,
 } from "lucide-react";
 import { NavSection } from "@/types/navigation";
 
@@ -22,6 +23,7 @@ const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
   BookOpen,
   Shield,
   Settings,
+  BarChart3,
 };
 
 const userTeams = getTeamsForUser(CURRENT_USER.id);

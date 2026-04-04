@@ -1,6 +1,6 @@
 # GRIDGE Wiring AI — 프로젝트 컨텍스트 문서
 
-> 마지막 업데이트: 2026-04-04 (Phase 17~19 완료)
+> 마지막 업데이트: 2026-04-04 (Phase 17~22 완료)
 > 브랜치: `claude/dev-management-groupware-ui-6hnmp` (main에 머지 완료)
 
 ---
@@ -309,6 +309,7 @@ shadcn/ui 기반 (모두 @base-ui/react 프리미티브 사용):
 | `/settings` | 설정 3탭 (AI설정/외부정책/팀관리, 탭 딥링크: ?tab=) |
 | `/agents` | 에이전트 현황 + 소통 피드 + 상세 패널 |
 | `/external` | 외부 업무 관리 (제안/진행/완료 3탭) |
+| `/analytics` | 분석 대시보드 (4탭: 티켓 추이/에이전트 비용/HITL 대기/팀 속도) |
 | `/docs` | 문서 라이브러리 (목록/검색/필터) |
 | `/docs/[docId]` | 문서 상세 + 마크다운 에디터 (split view) |
 | `/dashboard`, `/documents`, `/flowchart`, `/tickets` | 레거시 → 리다이렉트 처리 완료 |
@@ -437,7 +438,34 @@ Agent 색상: `src/lib/constants.ts` → `AGENT_COLORS`
 - 알림 클릭 시 해당 페이지 이동 + 읽음 처리
 - "모두 읽음" 버튼, 외부 클릭 시 닫기
 
-### 기능 구현 대기 (Phase 20+)
+### Phase 20: 분석 대시보드 (`/analytics`) — recharts 본격 활용
+- `/analytics` 라우트 신규 (4탭: 전체 개요/에이전트/HITL/팀 속도)
+- recharts 첫 활용: AreaChart(티켓 추이), LineChart(에이전트 비용), BarChart(팀 속도 비교)
+- PieChart (모델 사용 분포), 수평 BarChart (에이전트 효율)
+- 더미 신규: analytics.ts (14일치 daily stats, HITL 대기 통계, 팀 속도, 번다운 데이터)
+- IconNav/SubNav에 "분석" 항목 추가 (BarChart3 아이콘)
+- NavSection 타입에 "analytics" 추가
+
+### Phase 21: 프로젝트 개요 탭
+- ProjectWorkspace에 "개요" 탭 신규 추가 (기본 탭으로 설정)
+- ProjectOverview 컴포넌트 (`src/components/project/project-overview.tsx`)
+  - 4개 KPI (전체/완료/HITL/비용)
+  - 번다운 차트 (AreaChart, 이상/실제 비교)
+  - 에픽별 진행률 (진행 바)
+  - 티켓 상태 분포 (수평 BarChart)
+  - 에이전트 기여 (진행 바 + 아바타)
+  - 최근 완료 티켓 리스트
+
+### Phase 22: Agent 페이지 고도화
+- 3탭 구조: 현황 / 분석 / 토폴로지
+- **분석 탭**: 모델 사용 분포 PieChart + 에이전트 효율 BarChart + 7일 비용 LineChart
+- **토폴로지 탭**: React Flow 기반 에이전트 소통 그래프
+  - 원형 레이아웃, 메시지 수 기반 엣지 강도
+  - 활성 에이전트 엣지 animated, pulse 애니메이션
+  - 각 노드에 메시지 수 배지
+- KPI 영역 헤더로 이동, 상태 pulse 애니메이션 추가
+
+### 기능 구현 대기 (Phase 23+)
 - [ ] 팀원 상세 / 팀원 초대 UI 고도화
 - [ ] 알림 설정 (알림 유형별 on/off)
 

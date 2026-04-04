@@ -17,6 +17,7 @@ export const TOP_NAV_ITEMS: NavItemDef[] = [
 export const BOTTOM_NAV_ITEMS: NavItemDef[] = [
   { id: "skills", label: "스킬", icon: "BookOpen", href: "/skills", separated: true },
   { id: "governance", label: "거버넌스", icon: "Shield", href: "/governance" },
+  { id: "analytics", label: "분석", icon: "BarChart3", href: "/analytics" },
 ];
 
 export const AGENT_COLORS: Record<string, string> = {

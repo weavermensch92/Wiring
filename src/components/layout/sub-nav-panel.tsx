@@ -392,6 +392,25 @@ function SettingsSubNav() {
   );
 }
 
+// ─── Analytics SubNav ───
+function AnalyticsSubNav() {
+  const router = useRouter();
+  const go = (tab: string) => router.push(`/analytics?tab=${tab}`);
+  return (
+    <div className="space-y-1">
+      <NavRow icon={<BarChart3 className="w-4 h-4" />} label="전체 개요" onClick={() => go("overview")} />
+      <SectionDivider />
+      <CollapsibleSection title="상세 분석" defaultOpen>
+        <NavRow label="에이전트 비용" indent onClick={() => go("agents")} />
+        <NavRow label="HITL 현황" indent onClick={() => go("hitl")} />
+        <NavRow label="팀 속도" indent onClick={() => go("teams")} />
+      </CollapsibleSection>
+      <SectionDivider />
+      <NavRow icon={<Bot className="w-4 h-4" />} label="에이전트 현황" onClick={() => router.push("/agents")} />
+    </div>
+  );
+}
+
 // ─── Shared UI Components ───
 
 function SearchBar() {
@@ -490,6 +509,7 @@ function getSubNavContent(section: NavSection): React.ReactNode {
     case "skills": return <SkillsSubNav />;
     case "governance": return <GovernanceSubNav />;
     case "settings": return <SettingsSubNav />;
+    case "analytics": return <AnalyticsSubNav />;
     default: return null;
   }
 }

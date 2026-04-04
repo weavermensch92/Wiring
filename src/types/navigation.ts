@@ -4,6 +4,7 @@ export type NavSection =
   | "skills"
   | "governance"
   | "settings"
+  | "analytics"
   | `team-${string}`;
 
 export function isTeamSection(section: NavSection): section is `team-${string}` {

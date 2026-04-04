@@ -4,13 +4,18 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { KanbanBoard } from "./kanban-board";
 import { FlowchartView } from "./flowchart-view";
 import { TimelineView } from "./timeline-view";
-import { LayoutGrid, CalendarDays, GitBranch } from "lucide-react";
+import { ProjectOverview } from "./project-overview";
+import { LayoutGrid, CalendarDays, GitBranch, BarChart3 } from "lucide-react";
 
 export function ProjectWorkspace({ projectId }: { projectId: string }) {
   return (
-    <Tabs defaultValue="board" className="flex flex-col h-full">
+    <Tabs defaultValue="overview" className="flex flex-col h-full">
       <div className="px-4 pt-3 border-b border-[var(--wiring-glass-border)]">
         <TabsList>
+          <TabsTrigger value="overview" className="gap-1.5">
+            <BarChart3 className="w-3.5 h-3.5" />
+            개요
+          </TabsTrigger>
           <TabsTrigger value="board" className="gap-1.5">
             <LayoutGrid className="w-3.5 h-3.5" />
             보드
@@ -25,6 +30,10 @@ export function ProjectWorkspace({ projectId }: { projectId: string }) {
           </TabsTrigger>
         </TabsList>
       </div>
+
+      <TabsContent value="overview" className="flex-1 overflow-hidden mt-0">
+        <ProjectOverview projectId={projectId} />
+      </TabsContent>
 
       <TabsContent value="board" className="flex-1 overflow-hidden mt-0">
         <KanbanBoard projectId={projectId} />
