@@ -40,6 +40,7 @@ const BREADCRUMB_MAP: Record<string, string> = {
   "/docs": "문서 라이브러리",
   "/schedule": "일정",
   "/analytics": "분석 대시보드",
+  "/activity": "활동 로그",
 };
 
 function getBreadcrumb(pathname: string): string {

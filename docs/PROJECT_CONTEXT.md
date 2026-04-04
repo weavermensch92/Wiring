@@ -1,6 +1,6 @@
 # GRIDGE Wiring AI — 프로젝트 컨텍스트 문서
 
-> 마지막 업데이트: 2026-04-04 (Phase 17~22 완료)
+> 마지막 업데이트: 2026-04-04 (Phase 17~25 완료)
 > 브랜치: `claude/dev-management-groupware-ui-6hnmp` (main에 머지 완료)
 
 ---
@@ -310,6 +310,7 @@ shadcn/ui 기반 (모두 @base-ui/react 프리미티브 사용):
 | `/agents` | 에이전트 현황 + 소통 피드 + 상세 패널 |
 | `/external` | 외부 업무 관리 (제안/진행/완료 3탭) |
 | `/analytics` | 분석 대시보드 (4탭: 티켓 추이/에이전트 비용/HITL 대기/팀 속도) |
+| `/activity` | 전사 활동 로그 (날짜 그룹, 5탭 필터) |
 | `/docs` | 문서 라이브러리 (목록/검색/필터) |
 | `/docs/[docId]` | 문서 상세 + 마크다운 에디터 (split view) |
 | `/dashboard`, `/documents`, `/flowchart`, `/tickets` | 레거시 → 리다이렉트 처리 완료 |
@@ -465,9 +466,38 @@ Agent 색상: `src/lib/constants.ts` → `AGENT_COLORS`
   - 각 노드에 메시지 수 배지
 - KPI 영역 헤더로 이동, 상태 pulse 애니메이션 추가
 
-### 기능 구현 대기 (Phase 23+)
+### Phase 23: 전역 토스트 시스템 + Optimistic UI
+- `ToastItem` 타입, `useToastStore` Zustand 스토어 (`src/stores/toast-store.ts`)
+- 편의 헬퍼: `toast.success/error/warning/info(title, body?)`
+- `ToastContainer` 컴포넌트 — 화면 우하단 고정, framer-motion 슬라이드 인/아웃
+- app-shell.tsx에 전역 마운트
+- **Optimistic UI 연동**:
+  - hitl-store: approve(성공) / reject(경고) / escalate/delegate(정보) 즉시 토스트
+  - project-store: moveTicket 시 "티켓 이동 → 상태명" 성공 토스트
+  - favorites-store: toggle 시 추가/제거 토스트
+
+### Phase 24: 활동 로그 (`/activity`)
+- `/activity` 라우트 신규 — 전사 타임라인 활동 로그
+- 10가지 활동 타입 (ticket_created/moved/done, hitl_*/agent_action/deploy/comment/member_join)
+- 날짜 그룹별 분리 (오늘/어제/날짜)
+- 5탭 필터: 전체/내 활동/에이전트/HITL/배포
+- KPI 카드 4개 (에이전트 활동/사람 활동/HITL/배포)
+- 더미 신규: activity.ts (20개 항목, 메타 태그 포함)
+- HomeSubNav "활동 로그" 항목 추가
+
+### Phase 25: 홈 대시보드 고도화
+- KPI 카드에 **recharts AreaChart 스파크라인** 내장 (7일 추이)
+- 트렌드 배지 (▲▼ % 변화율)
+- HITL 대기 건수 버튼 → 바로 HITL 상세로 이동
+- 진행 중 티켓: 상태 컬러 배지, 에이전트 아바타, 비용 표시
+- 소속 팀 카드: 프로젝트/진행 중 티켓 카운트 추가
+- 활성 에이전트 목록: pulse 애니메이션, 오늘 비용
+- 최근 활동 피드 5건 + /activity 링크
+
+### 기능 구현 대기 (Phase 26+)
 - [ ] 팀원 상세 / 팀원 초대 UI 고도화
 - [ ] 알림 설정 (알림 유형별 on/off)
+- [ ] 모바일 반응형 (하단 탭바, 오버레이 SubNav)
 
 ### 기술 미정 (백엔드 연동 시)
 - [ ] 백엔드 아키텍처 (API, DB, 인증)

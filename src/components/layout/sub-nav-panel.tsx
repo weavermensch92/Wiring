@@ -12,7 +12,7 @@ import { DUMMY_USERS } from "@/dummy/users";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { PanelLeftClose, PanelLeftOpen, Search, Inbox, Clock, Star, CalendarDays, BarChart3, MessageSquare, Plus, Users, Bot, Wallet, ChevronDown, ChevronRight, ExternalLink, FileText } from "lucide-react";
+import { PanelLeftClose, PanelLeftOpen, Search, Inbox, Clock, Star, CalendarDays, BarChart3, MessageSquare, Plus, Users, Bot, Wallet, ChevronDown, ChevronRight, ExternalLink, FileText, Activity } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -137,6 +137,7 @@ function HomeSubNav() {
       <NavRow icon={<BarChart3 className="w-4 h-4" />} label="내 활동 리포트" onClick={() => router.push("/skills")} />
       <NavRow icon={<CalendarDays className="w-4 h-4" />} label="일정" onClick={() => router.push("/schedule")} />
       <NavRow icon={<FileText className="w-4 h-4" />} label="문서 라이브러리" onClick={() => router.push("/docs")} />
+      <NavRow icon={<Activity className="w-4 h-4" />} label="활동 로그" onClick={() => router.push("/activity")} />
     </div>
   );
 }

@@ -7,6 +7,7 @@ import { TopBar } from "./top-bar";
 import { ChatPanel } from "./chat-panel";
 import { MainWorkspace } from "./main-workspace";
 import { GlobalSearch } from "./global-search";
+import { ToastContainer } from "./toast-container";
 import { useLayoutStore } from "@/stores/layout-store";
 import { useNavigationStore } from "@/stores/navigation-store";
 import { TicketDetailDialog } from "@/components/project/ticket-detail-dialog";
@@ -50,6 +51,9 @@ export function AppShell({ children }: AppShellProps) {
 
       {/* Global Search Modal */}
       <GlobalSearch open={searchOpen} onClose={closeSearch} />
+
+      {/* Toast notifications */}
+      <ToastContainer />
     </div>
   );
 }

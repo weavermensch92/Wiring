@@ -3,6 +3,11 @@
 import { create } from "zustand";
 import { Ticket, TicketStatus, Subtask, TicketComment, TicketActivity } from "@/types/project";
 import { DUMMY_PROJECTS, DUMMY_EPICS, DUMMY_TICKETS, DUMMY_SUBTASKS, DUMMY_COMMENTS, DUMMY_ACTIVITIES } from "@/dummy/projects";
+import { toast } from "@/stores/toast-store";
+
+const STATUS_LABELS: Record<TicketStatus, string> = {
+  backlog: "백로그", todo: "할 일", in_progress: "진행 중", review: "검토", done: "완료",
+};
 
 interface ProjectState {
   currentProjectId: string | null;
@@ -31,16 +36,20 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
   comments: DUMMY_COMMENTS,
   activities: DUMMY_ACTIVITIES,
   setCurrentProject: (id) => set({ currentProjectId: id }),
-  moveTicket: (ticketId, newStatus) =>
+  moveTicket: (ticketId, newStatus) => {
+    let ticketTitle = "";
     set((state) => {
       const newTickets = { ...state.tickets };
       for (const epicId of Object.keys(newTickets)) {
-        newTickets[epicId] = newTickets[epicId].map((t) =>
-          t.id === ticketId ? { ...t, status: newStatus } : t
-        );
+        newTickets[epicId] = newTickets[epicId].map((t) => {
+          if (t.id === ticketId) { ticketTitle = t.title; return { ...t, status: newStatus }; }
+          return t;
+        });
       }
       return { tickets: newTickets };
-    }),
+    });
+    toast.success("티켓 이동", `${ticketTitle || ticketId} → ${STATUS_LABELS[newStatus]}`);
+  },
   addTicket: (epicId, ticket) =>
     set((state) => ({
       tickets: {

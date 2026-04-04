@@ -3,6 +3,7 @@
 import { create } from "zustand";
 import { HITLQueueItem, HITLStatus, DecisionRecord } from "@/types/hitl";
 import { DUMMY_HITL_QUEUE } from "@/dummy/hitl";
+import { toast } from "@/stores/toast-store";
 
 interface HITLState {
   queueItems: HITLQueueItem[];
@@ -45,7 +46,7 @@ export const useHITLStore = create<HITLState>((set) => ({
   activeItemId: null,
   setActiveItem: (id) => set({ activeItemId: id }),
 
-  approveItem: (itemId, reason) =>
+  approveItem: (itemId, reason) => {
     set((state) => ({
       queueItems: state.queueItems.map((item) => {
         if (item.id !== itemId) return item;
@@ -57,9 +58,11 @@ export const useHITLStore = create<HITLState>((set) => ({
           decisionHistory: [...(item.decisionHistory ?? []), record],
         };
       }),
-    })),
+    }));
+    toast.success("승인 완료", "HITL 항목이 승인되었습니다.");
+  },
 
-  rejectItem: (itemId, reason) =>
+  rejectItem: (itemId, reason) => {
     set((state) => ({
       queueItems: state.queueItems.map((item) => {
         if (item.id !== itemId) return item;
@@ -71,9 +74,11 @@ export const useHITLStore = create<HITLState>((set) => ({
           decisionHistory: [...(item.decisionHistory ?? []), record],
         };
       }),
-    })),
+    }));
+    toast.warning("반려 처리됨", "HITL 항목이 반려되었습니다.");
+  },
 
-  escalateItem: (itemId, targetUserId, targetUserName, targetUserLevel, reason) =>
+  escalateItem: (itemId, targetUserId, targetUserName, targetUserLevel, reason) => {
     set((state) => ({
       queueItems: state.queueItems.map((item) => {
         if (item.id !== itemId) return item;
@@ -92,9 +97,11 @@ export const useHITLStore = create<HITLState>((set) => ({
           decisionHistory: [...(item.decisionHistory ?? []), record],
         };
       }),
-    })),
+    }));
+    toast.info("에스컬레이션 완료", `${targetUserName}(${targetUserLevel})에게 에스컬레이션 되었습니다.`);
+  },
 
-  delegateItem: (itemId, targetUserId, targetUserName, targetUserLevel, reason) =>
+  delegateItem: (itemId, targetUserId, targetUserName, targetUserLevel, reason) => {
     set((state) => ({
       queueItems: state.queueItems.map((item) => {
         if (item.id !== itemId) return item;
@@ -113,7 +120,9 @@ export const useHITLStore = create<HITLState>((set) => ({
           decisionHistory: [...(item.decisionHistory ?? []), record],
         };
       }),
-    })),
+    }));
+    toast.info("위임 완료", `${targetUserName}(${targetUserLevel})에게 위임되었습니다.`);
+  },
 
   updateItemStatus: (itemId, status) =>
     set((state) => ({
