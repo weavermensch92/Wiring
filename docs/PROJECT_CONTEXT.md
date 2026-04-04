@@ -1,6 +1,6 @@
 # GRIDGE Wiring AI — 프로젝트 컨텍스트 문서
 
-> 마지막 업데이트: 2026-04-04 (Phase 17~25 완료)
+> 마지막 업데이트: 2026-04-04 (Phase 17~28 완료)
 > 브랜치: `claude/dev-management-groupware-ui-6hnmp` (main에 머지 완료)
 
 ---
@@ -311,6 +311,7 @@ shadcn/ui 기반 (모두 @base-ui/react 프리미티브 사용):
 | `/external` | 외부 업무 관리 (제안/진행/완료 3탭) |
 | `/analytics` | 분석 대시보드 (4탭: 티켓 추이/에이전트 비용/HITL 대기/팀 속도) |
 | `/activity` | 전사 활동 로그 (날짜 그룹, 5탭 필터) |
+| `/profile` | 유저 프로필 (개요/HITL 의결/알림 설정 3탭) |
 | `/docs` | 문서 라이브러리 (목록/검색/필터) |
 | `/docs/[docId]` | 문서 상세 + 마크다운 에디터 (split view) |
 | `/dashboard`, `/documents`, `/flowchart`, `/tickets` | 레거시 → 리다이렉트 처리 완료 |
@@ -494,10 +495,40 @@ Agent 색상: `src/lib/constants.ts` → `AGENT_COLORS`
 - 활성 에이전트 목록: pulse 애니메이션, 오늘 비용
 - 최근 활동 피드 5건 + /activity 링크
 
-### 기능 구현 대기 (Phase 26+)
-- [ ] 팀원 상세 / 팀원 초대 UI 고도화
-- [ ] 알림 설정 (알림 유형별 on/off)
-- [ ] 모바일 반응형 (하단 탭바, 오버레이 SubNav)
+### Phase 26: 프로젝트·에픽 생성 + 팀 개요 차트화
+- **AddProjectDialog** (`src/components/project/add-project-dialog.tsx`) — 팀 개요 "새 프로젝트" 버튼 연결
+- **AddEpicDialog** (`src/components/project/add-epic-dialog.tsx`) — ProjectWorkspace "에픽 추가" 버튼 연결
+- project-store에 `addProject`, `addEpic` 액션 + toast 연동
+- **팀 개요 페이지 전면 고도화**:
+  - 주간 완료 추이 AreaChart, 티켓 상태 분포 PieChart, 오늘 AI 비용 PieChart
+  - 프로젝트 진행률 바, 팀원 카드, 프로젝트 목록 (진행/완료 카운트)
+  - KPI 5개 (프로젝트/팀원/전체 티켓/HITL 대기/누적 비용)
+
+### Phase 27: 채팅 패널 슬래시 커맨드 + 마크다운 렌더링
+- **슬래시 커맨드 시스템** (`/help`, `/status`, `/hitl`, `/cost`, `/agents`, `/assign`)
+- `/` 입력 시 자동완성 드롭다운 (↑↓ 키 탐색, Enter 선택, ESC 닫기)
+- **마크다운 렌더링**: 볼드(`**text**`), 인라인 굵기, 리스트 항목 구조화 렌더링
+- 메시지 복사 버튼 (호버 시 노출, 클립보드 복사)
+- 입력창 플레이스홀더 "/ 커맨드" 힌트
+
+### Phase 28: 예산 페이지 차트화 + 유저 프로필
+- **팀 예산 페이지 recharts 통합**:
+  - 7일 비용 추이 AreaChart + `ReferenceLine` (일일 한도)
+  - 프로젝트별 예산 vs 소진 StackedBarChart
+  - 에이전트별 비용 분포 PieChart
+- **`/profile` 라우트 신규**:
+  - 3탭: 개요 / HITL 의결 이력 / 알림 설정
+  - 개요: 소속 팀 목록, 팀별 배정 티켓 BarChart, 최근 내 활동
+  - HITL 의결 이력: 승인/반려/에스컬레이션 이력 타임라인
+  - 알림 설정: 6종 알림 유형별 토글 (toast 연동)
+- IconNav 프로필 아바타 클릭 → `/profile` 라우팅
+
+### 기능 구현 대기 (Phase 29+)
+- [ ] 커맨드 팔레트 (`>` / `#` / `@` prefix)
+- [ ] Cmd+N 새 티켓, Cmd+B SubNav 토글, `?` 단축키 도움말
+- [ ] EmptyState 공통 컴포넌트
+- [ ] 온보딩 플로우
+- [ ] React.lazy 코드 스플리팅
 
 ### 기술 미정 (백엔드 연동 시)
 - [ ] 백엔드 아키텍처 (API, DB, 인증)

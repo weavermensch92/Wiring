@@ -127,7 +127,10 @@ export function IconNav() {
         </NavButton>
 
         <Tooltip>
-          <TooltipTrigger className="flex items-center justify-center w-11 h-11 cursor-pointer">
+          <TooltipTrigger
+            onClick={() => { router.push("/profile"); }}
+            className="flex items-center justify-center w-11 h-11 cursor-pointer hover:opacity-80 transition-opacity"
+          >
             <Avatar className="w-8 h-8 border border-[var(--wiring-glass-border)]">
               <AvatarFallback className="bg-[var(--wiring-bg-elevated)] text-xs text-[var(--wiring-text-secondary)]">
                 {CURRENT_USER.avatar}
@@ -135,7 +138,7 @@ export function IconNav() {
             </Avatar>
           </TooltipTrigger>
           <TooltipContent side="right" sideOffset={8}>
-            {CURRENT_USER.name}
+            {CURRENT_USER.name} · 프로필
           </TooltipContent>
         </Tooltip>
       </div>

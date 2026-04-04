@@ -1,7 +1,7 @@
 "use client";
 
 import { create } from "zustand";
-import { Ticket, TicketStatus, Subtask, TicketComment, TicketActivity } from "@/types/project";
+import { Ticket, TicketStatus, Subtask, TicketComment, TicketActivity, Project, Epic } from "@/types/project";
 import { DUMMY_PROJECTS, DUMMY_EPICS, DUMMY_TICKETS, DUMMY_SUBTASKS, DUMMY_COMMENTS, DUMMY_ACTIVITIES } from "@/dummy/projects";
 import { toast } from "@/stores/toast-store";
 
@@ -18,6 +18,8 @@ interface ProjectState {
   comments: Record<string, TicketComment[]>;
   activities: Record<string, TicketActivity[]>;
   setCurrentProject: (id: string) => void;
+  addProject: (project: Project) => void;
+  addEpic: (projectId: string, epic: Epic) => void;
   moveTicket: (ticketId: string, newStatus: TicketStatus) => void;
   addTicket: (epicId: string, ticket: Ticket) => void;
   updateTicket: (ticketId: string, updates: Partial<Ticket>) => void;
@@ -36,6 +38,16 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
   comments: DUMMY_COMMENTS,
   activities: DUMMY_ACTIVITIES,
   setCurrentProject: (id) => set({ currentProjectId: id }),
+  addProject: (project) => {
+    set((state) => ({ projects: [...state.projects, project] }));
+    toast.success("프로젝트 생성됨", project.name);
+  },
+  addEpic: (projectId, epic) => {
+    set((state) => ({
+      epics: { ...state.epics, [projectId]: [...(state.epics[projectId] || []), epic] },
+    }));
+    toast.success("에픽 생성됨", epic.title);
+  },
   moveTicket: (ticketId, newStatus) => {
     let ticketTitle = "";
     set((state) => {
