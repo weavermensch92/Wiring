@@ -6,6 +6,7 @@ import { HITLQueueItem, DecisionRecord, CostApprovalData } from "@/types/hitl";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { DUMMY_USERS } from "@/dummy/users";
 import {
   CheckCircle,
@@ -82,7 +83,8 @@ export default function HITLDetailPage({ params }: { params: Promise<{ itemId: s
   const isActionable = item.status === "waiting" || item.status === "in_progress";
 
   return (
-    <div className="p-6 max-w-3xl mx-auto space-y-6">
+    <ScrollArea className="h-full">
+    <div className="p-6 space-y-6">
       {/* Header */}
       <div className="glass-panel p-6">
         <div className="flex items-start gap-4">
@@ -165,6 +167,7 @@ export default function HITLDetailPage({ params }: { params: Promise<{ itemId: s
         </div>
       )}
     </div>
+    </ScrollArea>
   );
 }
 

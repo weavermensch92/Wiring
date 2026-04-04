@@ -110,7 +110,7 @@ export default function ProfilePage() {
   return (
     <div className="h-full flex flex-col overflow-hidden">
       <ScrollArea className="flex-1">
-        <div className="p-6 space-y-5 max-w-2xl">
+        <div className="p-6 space-y-5">
           {/* Profile card */}
           <div className="glass-panel px-6 py-5 flex items-center gap-5">
             <Avatar className="w-16 h-16 shrink-0">

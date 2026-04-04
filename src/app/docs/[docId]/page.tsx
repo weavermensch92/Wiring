@@ -227,7 +227,7 @@ export default function DocDetailPage({ params }: { params: Promise<{ docId: str
           /* 읽기 모드 */
           <div className="flex-1 flex overflow-hidden">
             <ScrollArea className="flex-1">
-              <div className="p-8 max-w-3xl mx-auto">
+              <div className="p-8">
                 {/* Title + meta */}
                 <h1 className="text-2xl font-bold text-[var(--wiring-text-primary)] mb-4">{originalDoc.title}</h1>
                 <div className="flex items-center gap-4 mb-6 flex-wrap">

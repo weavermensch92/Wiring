@@ -127,7 +127,7 @@ export default function HomePage() {
 
   return (
     <ScrollArea className="h-full">
-      <div className="p-6 space-y-5 max-w-5xl">
+      <div className="p-6 space-y-5">
         {/* Header */}
         <div className="glass-panel px-5 py-4 flex items-center justify-between">
           <div>
