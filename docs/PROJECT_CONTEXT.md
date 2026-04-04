@@ -1,6 +1,6 @@
 # GRIDGE Wiring AI — 프로젝트 컨텍스트 문서
 
-> 마지막 업데이트: 2026-04-04 (Phase 17~28 완료)
+> 마지막 업데이트: 2026-04-04 (Phase 17~30 완료)
 > 브랜치: `claude/dev-management-groupware-ui-6hnmp` (main에 머지 완료)
 
 ---
@@ -523,11 +523,41 @@ Agent 색상: `src/lib/constants.ts` → `AGENT_COLORS`
   - 알림 설정: 6종 알림 유형별 토글 (toast 연동)
 - IconNav 프로필 아바타 클릭 → `/profile` 라우팅
 
-### 기능 구현 대기 (Phase 29+)
-- [ ] 커맨드 팔레트 (`>` / `#` / `@` prefix)
-- [ ] Cmd+N 새 티켓, Cmd+B SubNav 토글, `?` 단축키 도움말
-- [ ] EmptyState 공통 컴포넌트
-- [ ] 온보딩 플로우
+### Phase 29: 커맨드 팔레트 확장 + 전역 키보드 단축키
+- **GlobalSearch → CommandPalette 전면 확장** (`src/components/layout/global-search.tsx`)
+  - `>` prefix: 페이지 이동 모드 (빠른 이동 8개)
+  - `#` prefix: 티켓 전용 검색
+  - `@` prefix: 에이전트 전용 검색
+  - 빈 쿼리: 최근 방문 + 빠른 액션 (localStorage 기반)
+  - 프리픽스 힌트 버튼 UI
+- **전역 키보드 단축키** (app-shell.tsx):
+  - `Cmd+K` → 커맨드 팔레트
+  - `Cmd+J` → 채팅 패널 토글
+  - `Cmd+B` → SubNav 접기/펼치기
+  - `Cmd+N` → 새 티켓 생성 다이얼로그
+  - `?` → 키보드 단축키 도움말
+- **KeyboardHelp 모달** (`src/components/layout/keyboard-help.tsx`) — 4개 그룹 단축키 목록
+- navigation-store에 `newTicketOpen / openNewTicket / closeNewTicket` 추가
+- layout-store에 `helpOpen / openHelp / closeHelp` 추가
+- top-bar에 Keyboard 아이콘 버튼 추가
+
+### Phase 30: EmptyState 컴포넌트 + 온보딩 플로우
+- **EmptyState 공통 컴포넌트** (`src/components/ui/empty-state.tsx`)
+  - icon / title / description / action CTA 슬롯, compact 모드
+  - /docs, /activity 페이지 적용
+- **OnboardingModal** (`src/components/layout/onboarding.tsx`)
+  - 첫 방문 시 자동 표시 (localStorage `wiring-onboarded-v1` 기반)
+  - 5단계 슬라이드: 환영 → 에이전트 → HITL → 커맨드 팔레트 → 분석
+  - 단계 dot 네비게이션, 건너뛰기 버튼, framer-motion 애니메이션
+  - app-shell에 마운트
+
+### 기능 구현 완료 — 프론트엔드 UI 30 Phase 구현 완료
+백엔드 연동 시 추가 필요:
+- [ ] 백엔드 API (REST/GraphQL)
+- [ ] 실시간 소통 (WebSocket/SSE)
+- [ ] AI Agent 통신 (MCP 연동)
+- [ ] 인증/권한 체계 실제 적용
+- [ ] 모바일 반응형 완성
 - [ ] React.lazy 코드 스플리팅
 
 ### 기술 미정 (백엔드 연동 시)

@@ -16,6 +16,7 @@ import {
   Search,
   MessageSquare,
   Star,
+  Keyboard,
 } from "lucide-react";
 
 // breadcrumb에 /docs 경로 추가
@@ -81,7 +82,7 @@ function getBreadcrumb(pathname: string): string {
 
 export function TopBar() {
   const pathname = usePathname();
-  const { chatPanelOpen, toggleChatPanel, openSearch } = useLayoutStore();
+  const { chatPanelOpen, toggleChatPanel, openSearch, openHelp } = useLayoutStore();
   const { queueItems } = useHITLStore();
   const { toggle, has } = useFavoritesStore();
   const waitingCount = queueItems.filter((i) => i.status === "waiting").length;
@@ -157,6 +158,14 @@ export function TopBar() {
         )}
 
         <NotificationPanel />
+
+        <button
+          onClick={openHelp}
+          className="p-2 rounded-lg text-[var(--wiring-text-tertiary)] hover:bg-[var(--wiring-glass-hover)] hover:text-[var(--wiring-text-secondary)] transition-colors"
+          title="키보드 단축키 (?)"
+        >
+          <Keyboard className="w-4 h-4" />
+        </button>
 
         <button
           onClick={toggleChatPanel}

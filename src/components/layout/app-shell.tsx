@@ -8,29 +8,39 @@ import { ChatPanel } from "./chat-panel";
 import { MainWorkspace } from "./main-workspace";
 import { GlobalSearch } from "./global-search";
 import { ToastContainer } from "./toast-container";
+import { KeyboardHelp } from "./keyboard-help";
+import { OnboardingModal } from "./onboarding";
 import { useLayoutStore } from "@/stores/layout-store";
 import { useNavigationStore } from "@/stores/navigation-store";
 import { TicketDetailDialog } from "@/components/project/ticket-detail-dialog";
+import { AddTicketDialog } from "@/components/project/add-ticket-dialog";
 
 interface AppShellProps {
   children: React.ReactNode;
 }
 
 export function AppShell({ children }: AppShellProps) {
-  const { chatPanelOpen, searchOpen, openSearch, closeSearch } = useLayoutStore();
-  const { selectedTicketForDialog, ticketDialogOpen, closeTicketDialog } = useNavigationStore();
+  const {
+    chatPanelOpen, searchOpen, helpOpen,
+    openSearch, closeSearch, toggleChatPanel,
+    openHelp, closeHelp,
+  } = useLayoutStore();
+  const { selectedTicketForDialog, ticketDialogOpen, closeTicketDialog, toggleSubNav, newTicketOpen, openNewTicket, closeNewTicket } = useNavigationStore();
 
-  // Cmd+K / Ctrl+K 글로벌 단축키
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
-        e.preventDefault();
-        openSearch();
-      }
+      const target = e.target as HTMLElement;
+      const isTyping = target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.isContentEditable;
+
+      if ((e.metaKey || e.ctrlKey) && e.key === "k") { e.preventDefault(); openSearch(); return; }
+      if ((e.metaKey || e.ctrlKey) && e.key === "j") { e.preventDefault(); toggleChatPanel(); return; }
+      if ((e.metaKey || e.ctrlKey) && e.key === "b") { e.preventDefault(); toggleSubNav(); return; }
+      if ((e.metaKey || e.ctrlKey) && e.key === "n") { e.preventDefault(); openNewTicket(); return; }
+      if (!isTyping && e.key === "?") { e.preventDefault(); openHelp(); return; }
     };
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
-  }, [openSearch]);
+  }, [openSearch, toggleChatPanel, toggleSubNav, openHelp, openNewTicket]);
 
   return (
     <div className="flex h-screen w-screen overflow-hidden bg-[var(--wiring-bg-primary)]">
@@ -42,17 +52,22 @@ export function AppShell({ children }: AppShellProps) {
       </div>
       {chatPanelOpen && <ChatPanel />}
 
-      {/* Global TicketDetailDialog — opened from SubNav */}
       <TicketDetailDialog
         ticket={selectedTicketForDialog}
         open={ticketDialogOpen}
         onOpenChange={(open) => { if (!open) closeTicketDialog(); }}
       />
 
-      {/* Global Search Modal */}
-      <GlobalSearch open={searchOpen} onClose={closeSearch} />
+      <AddTicketDialog
+        open={newTicketOpen ?? false}
+        onOpenChange={(open) => { if (!open) closeNewTicket?.(); }}
+        epicId="epic-1"
+        defaultStatus="todo"
+      />
 
-      {/* Toast notifications */}
+      <GlobalSearch open={searchOpen} onClose={closeSearch} />
+      <KeyboardHelp open={helpOpen} onClose={closeHelp} />
+      <OnboardingModal />
       <ToastContainer />
     </div>
   );

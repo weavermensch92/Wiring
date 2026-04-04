@@ -3,6 +3,7 @@
 import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { DUMMY_DOCUMENTS } from "@/dummy/documents";
+import { EmptyState } from "@/components/ui/empty-state";
 import { WiringDocument, DocumentType, DocumentStatus } from "@/types/document";
 import { DUMMY_TEAMS } from "@/dummy/teams";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -243,9 +244,13 @@ export default function DocsPage() {
           {/* Document List */}
           <div className="grid gap-3">
             {filtered.length === 0 ? (
-              <div className="glass-panel p-8 flex flex-col items-center gap-2 text-center">
-                <FileText className="w-8 h-8 text-[var(--wiring-text-tertiary)]" />
-                <p className="text-sm text-[var(--wiring-text-tertiary)]">검색 결과가 없습니다</p>
+              <div className="glass-panel">
+                <EmptyState
+                  icon={<FileText className="w-8 h-8" />}
+                  title="검색 결과가 없습니다"
+                  description={search ? `"${search}"에 해당하는 문서를 찾지 못했습니다` : "조건에 맞는 문서가 없습니다"}
+                  action={{ label: "+ 새 문서 작성", onClick: () => router.push("/docs/new") }}
+                />
               </div>
             ) : (
               filtered.map((doc) => (

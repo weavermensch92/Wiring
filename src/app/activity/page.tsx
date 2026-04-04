@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
+import { EmptyState } from "@/components/ui/empty-state";
 import { DUMMY_ACTIVITIES, ActivityEntry, ActivityType } from "@/dummy/activity";
 import { DUMMY_TEAMS } from "@/dummy/teams";
 import { AGENT_COLORS } from "@/lib/constants";
@@ -231,10 +232,12 @@ export default function ActivityPage() {
       <ScrollArea className="flex-1">
         <div className="px-6 pb-6">
           {grouped.length === 0 ? (
-            <div className="py-16 text-center">
-              <Activity className="w-10 h-10 text-[var(--wiring-text-tertiary)] mx-auto mb-3" />
-              <p className="text-sm text-[var(--wiring-text-tertiary)]">활동 내역이 없습니다</p>
-            </div>
+            <EmptyState
+              icon={<Activity className="w-10 h-10" />}
+              title="활동 내역이 없습니다"
+              description={filter !== "all" ? "해당 필터에 맞는 활동이 없습니다" : "아직 기록된 활동이 없습니다"}
+              action={filter !== "all" ? { label: "전체 보기", onClick: () => setFilter("all") } : undefined}
+            />
           ) : (
             grouped.map((group) => (
               <div key={group.label}>
