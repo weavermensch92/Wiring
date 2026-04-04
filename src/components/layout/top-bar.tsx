@@ -4,10 +4,11 @@ import { usePathname } from "next/navigation";
 import { useLayoutStore } from "@/stores/layout-store";
 import { useHITLStore } from "@/stores/hitl-store";
 import { useFavoritesStore } from "@/stores/favorites-store";
+import { DUMMY_DOCUMENTS } from "@/dummy/documents";
 import { DUMMY_TEAMS } from "@/dummy/teams";
 import { DUMMY_PROJECTS } from "@/dummy/projects";
+import { NotificationPanel } from "./notification-panel";
 import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
 import {
   ChevronLeft,
   ChevronRight,
@@ -16,6 +17,14 @@ import {
   MessageSquare,
   Star,
 } from "lucide-react";
+
+// breadcrumb에 /docs 경로 추가
+const EXTRA_BREADCRUMB: Record<string, string> = {
+  "/docs": "문서 라이브러리",
+  "/schedule": "일정",
+  "/agents": "에이전트",
+  "/external": "외부 업무",
+};
 
 const BREADCRUMB_MAP: Record<string, string> = {
   "/home": "홈",
@@ -27,7 +36,9 @@ const BREADCRUMB_MAP: Record<string, string> = {
   "/agents": "에이전트",
   "/external": "외부 업무",
   "/dashboard": "대시보드",
-  "/documents": "문서 / 스킬",
+  "/documents": "문서 번들",
+  "/docs": "문서 라이브러리",
+  "/schedule": "일정",
 };
 
 function getBreadcrumb(pathname: string): string {
@@ -54,12 +65,20 @@ function getBreadcrumb(pathname: string): string {
   // HITL detail route
   if (pathname.startsWith("/hitl/")) return "HITL 상세";
 
+  // Docs detail route
+  if (pathname.startsWith("/docs/")) {
+    const docId = pathname.replace("/docs/", "");
+    if (docId === "new") return "새 문서";
+    const doc = DUMMY_DOCUMENTS.find((d) => d.id === docId);
+    return doc ? doc.title : "문서";
+  }
+
   return pathname.split("/").pop() || "";
 }
 
 export function TopBar() {
   const pathname = usePathname();
-  const { chatPanelOpen, toggleChatPanel } = useLayoutStore();
+  const { chatPanelOpen, toggleChatPanel, openSearch } = useLayoutStore();
   const { queueItems } = useHITLStore();
   const { toggle, has } = useFavoritesStore();
   const waitingCount = queueItems.filter((i) => i.status === "waiting").length;
@@ -115,13 +134,15 @@ export function TopBar() {
 
       {/* Right: search + HITL badge + chat toggle */}
       <div className="flex items-center gap-2">
-        <div className="relative">
-          <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[var(--wiring-text-tertiary)]" />
-          <Input
-            placeholder="검색..."
-            className="h-8 w-48 pl-8 text-xs bg-[var(--wiring-glass-bg)] border-[var(--wiring-glass-border)] focus:border-[var(--wiring-accent)] focus:w-64 transition-all duration-200"
-          />
-        </div>
+        <button
+          onClick={openSearch}
+          className="flex items-center gap-2 h-8 px-3 rounded-lg text-xs text-[var(--wiring-text-tertiary)] bg-[var(--wiring-glass-bg)] border border-[var(--wiring-glass-border)] hover:border-[var(--wiring-accent)] hover:text-[var(--wiring-text-secondary)] transition-all w-48"
+          title="검색 (Ctrl+K)"
+        >
+          <Search className="w-3.5 h-3.5 shrink-0" />
+          <span className="flex-1 text-left">검색...</span>
+          <kbd className="text-[10px] px-1 py-0.5 rounded border border-[var(--wiring-glass-border)] bg-[var(--wiring-bg-tertiary)] shrink-0">⌘K</kbd>
+        </button>
 
         {waitingCount > 0 && (
           <Badge
@@ -131,6 +152,8 @@ export function TopBar() {
             HITL {waitingCount}
           </Badge>
         )}
+
+        <NotificationPanel />
 
         <button
           onClick={toggleChatPanel}

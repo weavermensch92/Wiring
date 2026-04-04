@@ -1,6 +1,6 @@
 # GRIDGE Wiring AI — 프로젝트 컨텍스트 문서
 
-> 마지막 업데이트: 2026-04-04
+> 마지막 업데이트: 2026-04-04 (Phase 17~19 완료)
 > 브랜치: `claude/dev-management-groupware-ui-6hnmp` (main에 머지 완료)
 
 ---
@@ -179,6 +179,8 @@
 | `flowchart.ts` | 플로차트 관련 타입 |
 | `routine.ts` | 루틴 업무 타입 |
 | `external.ts` | 외부 업무 타입 |
+| `document.ts` | WiringDocument 타입 (spec/design/meeting/technical/runbook/report) |
+| `skill.ts` | Skill, SkillDocument, SkillUsageSummary |
 
 ### 4.2 핵심 타입 상세
 
@@ -259,6 +261,8 @@ interface HITLQueueItem {
 | `flowchart.ts` | 플로차트 더미 |
 | `routines.ts` | 루틴 업무 더미 |
 | `external.ts` | 외부 업무 더미 |
+| `documents.ts` | 10개 WiringDocument (팀/프로젝트별 스펙·회의록·런북 등) |
+| `notifications.ts` | 8개 알림 더미 (hitl/ticket/agent/budget/external 유형) |
 
 ### 4.5 Components
 
@@ -305,6 +309,8 @@ shadcn/ui 기반 (모두 @base-ui/react 프리미티브 사용):
 | `/settings` | 설정 3탭 (AI설정/외부정책/팀관리, 탭 딥링크: ?tab=) |
 | `/agents` | 에이전트 현황 + 소통 피드 + 상세 패널 |
 | `/external` | 외부 업무 관리 (제안/진행/완료 3탭) |
+| `/docs` | 문서 라이브러리 (목록/검색/필터) |
+| `/docs/[docId]` | 문서 상세 + 마크다운 에디터 (split view) |
 | `/dashboard`, `/documents`, `/flowchart`, `/tickets` | 레거시 → 리다이렉트 처리 완료 |
 
 ---
@@ -406,12 +412,34 @@ Agent 색상: `src/lib/constants.ts` → `AGENT_COLORS`
 
 ## 9. 미구현 / 향후 작업
 
-### 기능 구현 대기 (Phase 17+)
-- [ ] 문서 편집기 (Tiptap/Univer 통합)
-- [ ] 홈 SubNav "즐겨찾기" — localStorage 기반 북마크
-- [ ] 홈 SubNav "일정" — 타임라인 뷰 연결
-- [ ] 팀원 상세 / 팀원 초대 UI
-- [ ] 팀 HITL 큐 페이지 (팀 범위 필터링)
+### Phase 17: 문서 라이브러리 (`/docs`, `/docs/[docId]`)
+- `/docs` 문서 목록 페이지: 유형/상태/검색 필터, KPI 카드
+- `/docs/[docId]` 문서 상세+에디터: 읽기 모드(마크다운 렌더링+사이드 메타) / 편집 모드(split view)
+- 마크다운 → HTML 렌더러 (h1~h3, bold, code, table, list, hr 지원)
+- 타입 신규: WiringDocument (spec/design/meeting/technical/runbook/report)
+- 더미 신규: documents.ts (10개 문서, 각 팀/프로젝트별)
+- HomeSubNav "문서 라이브러리" 항목 추가, SkillsSubNav "전체 문서 →" 링크 연결
+
+### Phase 18: 글로벌 검색 (Cmd+K / Ctrl+K)
+- GlobalSearch 모달 컴포넌트 (`src/components/layout/global-search.tsx`)
+- 프로젝트·티켓·HITL·에이전트·문서 퍼지 검색 (score 기반 랭킹)
+- 키보드 네비게이션 (↑↓ 탐색, Enter 이동, ESC 닫기)
+- app-shell.tsx에 Cmd+K 단축키 등록
+- layout-store에 `searchOpen` 상태 추가
+- top-bar 검색 인풋 → 클릭 가능 검색 버튼으로 교체 (⌘K 힌트 표시)
+- top-bar 브레드크럼에 /docs, /schedule 경로 추가
+
+### Phase 19: 알림 센터
+- NotificationPanel 컴포넌트 (`src/components/layout/notification-panel.tsx`)
+- top-bar에 벨 아이콘 + 읽지 않은 알림 뱃지 (빨간 숫자)
+- 알림 유형: hitl_waiting / ticket_assigned / ticket_done / agent_message / budget_alert / external_proposal
+- 더미 신규: notifications.ts (8개 알림, 3개 미읽음)
+- 알림 클릭 시 해당 페이지 이동 + 읽음 처리
+- "모두 읽음" 버튼, 외부 클릭 시 닫기
+
+### 기능 구현 대기 (Phase 20+)
+- [ ] 팀원 상세 / 팀원 초대 UI 고도화
+- [ ] 알림 설정 (알림 유형별 on/off)
 
 ### 기술 미정 (백엔드 연동 시)
 - [ ] 백엔드 아키텍처 (API, DB, 인증)
@@ -426,6 +454,8 @@ Agent 색상: `src/lib/constants.ts` → `AGENT_COLORS`
 ## 10. Git 히스토리
 
 ```
+cd12fe2 feat: 주요 페이지 UI 전면 구현 및 팀 서브페이지 추가 (Phase 6~16)
+eab092a docs: add comprehensive project context document
 c74a3b4 feat: Phase 5 - Jira-style ticket detail dialog
 b5331a2 feat: Phase 4 - HITL detail page + timeline view
 68a5b9e feat: Phase 3 - flowchart view + data-driven home dashboard
