@@ -61,7 +61,7 @@ const TOUR_STEPS: CoachStep[] = [
     description: "현재 선택한 페이지의 콘텐츠가 여기에 표시됩니다. 홈 대시보드, 칸반 보드, 플로차트, 분석 차트 등 다양한 뷰를 제공합니다.",
     icon: <BarChart3 className="w-5 h-5" />,
     color: "#3B82F6",
-    position: "bottom",
+    position: "center",
   },
   {
     id: "search",
@@ -121,20 +121,39 @@ function getTooltipStyle(
 
   const gap = 16;
   const tooltipW = 360;
-  const tooltipH = 220;
+  const tooltipH = 240;
+  const vw = window.innerWidth;
+  const vh = window.innerHeight;
+
+  let left = 0;
+  let top = 0;
 
   switch (position) {
     case "right":
-      return { position: "fixed", left: rect.right + gap, top: rect.top + rect.height / 2 - tooltipH / 2 };
+      left = rect.right + gap;
+      top = rect.top + rect.height / 2 - tooltipH / 2;
+      break;
     case "left":
-      return { position: "fixed", left: rect.left - tooltipW - gap, top: rect.top + rect.height / 2 - tooltipH / 2 };
+      left = rect.left - tooltipW - gap;
+      top = rect.top + rect.height / 2 - tooltipH / 2;
+      break;
     case "bottom":
-      return { position: "fixed", left: rect.left + rect.width / 2 - tooltipW / 2, top: rect.bottom + gap };
+      left = rect.left + rect.width / 2 - tooltipW / 2;
+      top = rect.bottom + gap;
+      break;
     case "top":
-      return { position: "fixed", left: rect.left + rect.width / 2 - tooltipW / 2, top: rect.top - tooltipH - gap };
-    default:
-      return { position: "fixed", left: "50%", top: "50%", transform: "translate(-50%, -50%)" };
+      left = rect.left + rect.width / 2 - tooltipW / 2;
+      top = rect.top - tooltipH - gap;
+      break;
   }
+
+  // 뷰포트 밖으로 밀리면 화면 중앙으로 보정
+  if (top + tooltipH > vh - 20) top = vh / 2 - tooltipH / 2;
+  if (top < 20) top = 20;
+  if (left + tooltipW > vw - 20) left = vw - tooltipW - 20;
+  if (left < 20) left = 20;
+
+  return { position: "fixed", left, top };
 }
 
 // ─── 스포트라이트 오버레이 (SVG 마스크) ───
