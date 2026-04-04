@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { DUMMY_TEAMS } from "@/dummy/teams";
 import { DUMMY_PROJECTS, DUMMY_EPICS, DUMMY_TICKETS, DUMMY_SUBTASKS, getAllTicketsForProject } from "@/dummy/projects";
@@ -44,6 +44,14 @@ const HITL_TYPE_LABELS: Record<string, string> = {
 type Tab = "tickets" | "hitl" | "schedule";
 
 export default function MyWorkPage() {
+  return (
+    <Suspense fallback={<div className="h-full flex items-center justify-center text-[var(--wiring-text-tertiary)]">로딩 중...</div>}>
+      <MyWorkContent />
+    </Suspense>
+  );
+}
+
+function MyWorkContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const initialTab = (searchParams.get("tab") as Tab) ?? "tickets";
