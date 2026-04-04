@@ -2,7 +2,7 @@
 
 import { use, useState } from "react";
 import { useHITLStore } from "@/stores/hitl-store";
-import { HITLQueueItem, DecisionRecord } from "@/types/hitl";
+import { HITLQueueItem, DecisionRecord, CostApprovalData } from "@/types/hitl";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -388,24 +388,129 @@ function TypeSpecificContent({ item }: { item: HITLQueueItem }) {
       return <DesignReviewSection item={item} />;
     case "model_allocation":
       return <ModelAllocationSection item={item} />;
+    case "cost_approval":
+      return <CostApprovalSection item={item} />;
     default:
       return null;
   }
 }
 
+// ─── 더미 코드 디프 데이터 ───
+const DUMMY_DIFF = [
+  {
+    file: "src/components/ImageUploader.tsx",
+    changes: [
+      { type: "context", line: 12, content: "import { useCallback, useState } from 'react';" },
+      { type: "remove", line: 13, content: "import { FileUploader } from './FileUploader';" },
+      { type: "add", line: 13, content: "import { DragDropZone } from './DragDropZone';" },
+      { type: "add", line: 14, content: "import { ImagePreview } from './ImagePreview';" },
+      { type: "context", line: 15, content: "" },
+      { type: "context", line: 16, content: "interface ImageUploaderProps {" },
+      { type: "remove", line: 17, content: "  onUpload: (file: File) => void;" },
+      { type: "add", line: 17, content: "  onUpload: (files: File[]) => Promise<void>;" },
+      { type: "add", line: 18, content: "  maxFiles?: number;" },
+      { type: "add", line: 19, content: "  maxSizeMB?: number;" },
+      { type: "context", line: 20, content: "}" },
+      { type: "context", line: 21, content: "" },
+      { type: "add", line: 22, content: "const ACCEPTED_TYPES = ['image/jpeg', 'image/png', 'image/webp'];" },
+      { type: "add", line: 23, content: "" },
+      { type: "remove", line: 24, content: "export function ImageUploader({ onUpload }: ImageUploaderProps) {" },
+      { type: "add", line: 24, content: "export function ImageUploader({ onUpload, maxFiles = 10, maxSizeMB = 5 }: ImageUploaderProps) {" },
+      { type: "add", line: 25, content: "  const [previews, setPreviews] = useState<string[]>([]);" },
+      { type: "add", line: 26, content: "  const [isDragging, setIsDragging] = useState(false);" },
+    ],
+    agentComment: "SM Agent: FileUploader 의존성 제거하고 네이티브 Drag API로 전환. 멀티 파일 + 프리뷰 + 타입/사이즈 검증 추가.",
+  },
+  {
+    file: "src/components/FileUploader.tsx",
+    changes: [
+      { type: "context", line: 1, content: "// 기존 FileUploader — 하위 호환 유지" },
+      { type: "add", line: 2, content: "/** @deprecated ImageUploader를 사용하세요 */" },
+      { type: "context", line: 3, content: "export function FileUploader(props: any) {" },
+      { type: "add", line: 4, content: "  console.warn('FileUploader is deprecated. Use ImageUploader.');" },
+      { type: "context", line: 5, content: "  return <div>...</div>;" },
+    ],
+    agentComment: null,
+  },
+];
+
 function CodeReviewSection({ item }: { item: HITLQueueItem }) {
-  if (!item.relatedFiles?.length) return null;
+  const [activeFileIdx, setActiveFileIdx] = useState(0);
+  const diff = DUMMY_DIFF;
+  const activeFile = diff[activeFileIdx];
+
   return (
-    <div className="glass-panel p-5">
-      <h2 className="text-sm font-semibold text-[var(--wiring-text-primary)] mb-2">관련 파일</h2>
-      <div className="space-y-1">
-        {item.relatedFiles.map((f) => (
-          <div key={f} className="flex items-center gap-2 p-2 rounded-lg bg-[var(--wiring-glass-bg)] text-xs">
-            <FileText className="w-3.5 h-3.5 text-[var(--wiring-text-tertiary)]" />
-            <code className="text-[var(--wiring-accent)]">{f}</code>
+    <div className="space-y-4">
+      {/* 파일 탭 */}
+      <div className="glass-panel overflow-hidden">
+        <div className="flex items-center border-b border-[var(--wiring-glass-border)] overflow-x-auto">
+          {diff.map((d, i) => (
+            <button
+              key={d.file}
+              onClick={() => setActiveFileIdx(i)}
+              className={`flex items-center gap-1.5 px-3 py-2.5 text-xs whitespace-nowrap border-b-2 transition-colors ${
+                i === activeFileIdx
+                  ? "border-[var(--wiring-accent)] text-[var(--wiring-accent)] bg-[var(--wiring-accent-glow)]"
+                  : "border-transparent text-[var(--wiring-text-tertiary)] hover:text-[var(--wiring-text-secondary)]"
+              }`}
+            >
+              <FileText className="w-3 h-3" />
+              {d.file.split("/").pop()}
+            </button>
+          ))}
+        </div>
+
+        {/* 디프 뷰 */}
+        <div className="p-0 font-mono text-xs overflow-x-auto">
+          {activeFile.changes.map((change, i) => {
+            const bgColor = change.type === "add" ? "rgba(34,197,94,0.08)" : change.type === "remove" ? "rgba(239,68,68,0.08)" : "transparent";
+            const textColor = change.type === "add" ? "var(--wiring-success)" : change.type === "remove" ? "var(--wiring-danger)" : "var(--wiring-text-secondary)";
+            const prefix = change.type === "add" ? "+" : change.type === "remove" ? "−" : " ";
+            return (
+              <div
+                key={i}
+                className="flex"
+                style={{ backgroundColor: bgColor }}
+              >
+                <span className="w-10 text-right pr-2 py-0.5 text-[10px] text-[var(--wiring-text-tertiary)] select-none shrink-0 border-r border-[var(--wiring-glass-border)]">
+                  {change.line}
+                </span>
+                <span className="w-5 text-center py-0.5 text-[10px] shrink-0 select-none" style={{ color: textColor }}>
+                  {prefix}
+                </span>
+                <span className="py-0.5 pr-4 whitespace-pre" style={{ color: textColor }}>
+                  {change.content}
+                </span>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Agent 코멘트 */}
+        {activeFile.agentComment && (
+          <div className="px-4 py-3 border-t border-[var(--wiring-glass-border)] bg-[var(--wiring-glass-bg)]">
+            <div className="flex items-start gap-2">
+              <MessageSquare className="w-3.5 h-3.5 text-[var(--wiring-accent)] shrink-0 mt-0.5" />
+              <p className="text-xs text-[var(--wiring-text-secondary)] leading-relaxed">{activeFile.agentComment}</p>
+            </div>
           </div>
-        ))}
+        )}
       </div>
+
+      {/* 관련 파일 목록 */}
+      {item.relatedFiles && item.relatedFiles.length > 0 && (
+        <div className="glass-panel p-4">
+          <h2 className="text-xs font-semibold text-[var(--wiring-text-tertiary)] uppercase mb-2">전체 관련 파일</h2>
+          <div className="space-y-1">
+            {item.relatedFiles.map((f) => (
+              <div key={f} className="flex items-center gap-2 px-2 py-1.5 rounded-lg bg-[var(--wiring-glass-bg)] text-xs">
+                <FileText className="w-3 h-3 text-[var(--wiring-text-tertiary)]" />
+                <code className="text-[var(--wiring-accent)]">{f}</code>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -512,16 +617,72 @@ function AssignmentSection({ item }: { item: HITLQueueItem }) {
   );
 }
 
+const DESIGN_CHECKLIST = [
+  { id: "dc-1", label: "디자인 시스템 컬러 팔레트 준수", status: "pass" as const },
+  { id: "dc-2", label: "타이포그래피 가이드라인 준수", status: "pass" as const },
+  { id: "dc-3", label: "모바일 반응형 (320~767px) 대응", status: "warning" as const, note: "일부 마진 값 미적용" },
+  { id: "dc-4", label: "접근성 (WCAG 2.1 AA)", status: "pass" as const },
+  { id: "dc-5", label: "인터랙션 명세 (호버/포커스/로딩)", status: "fail" as const, note: "로딩 스켈레톤 누락" },
+  { id: "dc-6", label: "다크 모드 대응", status: "pass" as const },
+];
+
 function DesignReviewSection({ item }: { item: HITLQueueItem }) {
-  if (!item.designUrl) return null;
   return (
-    <div className="glass-panel p-5">
-      <h2 className="text-sm font-semibold text-[var(--wiring-text-primary)] mb-2">디자인 시안</h2>
-      <div className="p-4 rounded-lg bg-[var(--wiring-glass-bg)] border border-[var(--wiring-glass-border)] flex items-center justify-center min-h-[200px]">
-        <div className="text-center">
-          <Palette className="w-8 h-8 mx-auto mb-2 text-[var(--wiring-text-tertiary)] opacity-40" />
-          <p className="text-xs text-[var(--wiring-text-tertiary)]">디자인 미리보기</p>
-          <p className="text-[10px] text-[var(--wiring-accent)] mt-1">{item.designUrl}</p>
+    <div className="space-y-4">
+      {/* 디자인 시안 */}
+      <div className="glass-panel overflow-hidden">
+        <div className="px-4 py-3 border-b border-[var(--wiring-glass-border)]">
+          <h2 className="text-sm font-semibold text-[var(--wiring-text-primary)]">디자인 시안</h2>
+        </div>
+        <div className="grid grid-cols-3 gap-px bg-[var(--wiring-glass-border)]">
+          {["Before", "After", "변경점"].map((label, i) => (
+            <div key={label} className="bg-[var(--wiring-bg-primary)] p-3 min-h-[180px] flex flex-col items-center justify-center">
+              <p className="text-[10px] text-[var(--wiring-text-tertiary)] mb-2">{label}</p>
+              <div className="w-full h-32 rounded-lg flex items-center justify-center" style={{
+                backgroundColor: i === 0 ? "rgba(239,68,68,0.06)" : i === 1 ? "rgba(34,197,94,0.06)" : "rgba(59,130,246,0.06)",
+                border: `1px dashed ${i === 0 ? "rgba(239,68,68,0.2)" : i === 1 ? "rgba(34,197,94,0.2)" : "rgba(59,130,246,0.2)"}`,
+              }}>
+                <div className="text-center">
+                  <Palette className="w-6 h-6 mx-auto mb-1" style={{ color: i === 0 ? "var(--wiring-danger)" : i === 1 ? "var(--wiring-success)" : "var(--wiring-info)", opacity: 0.3 }} />
+                  <p className="text-[10px] text-[var(--wiring-text-tertiary)]">{i === 0 ? "이전 버전" : i === 1 ? "신규 시안" : "변경 하이라이트"}</p>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+        {item.designUrl && (
+          <div className="px-4 py-2 border-t border-[var(--wiring-glass-border)] flex items-center gap-2">
+            <Palette className="w-3 h-3 text-[var(--wiring-accent)]" />
+            <span className="text-[10px] text-[var(--wiring-accent)]">{item.designUrl}</span>
+          </div>
+        )}
+      </div>
+
+      {/* 디자인 체크리스트 */}
+      <div className="glass-panel p-5">
+        <h2 className="text-sm font-semibold text-[var(--wiring-text-primary)] mb-3">Dsn Agent 디자인 체크리스트</h2>
+        <div className="space-y-2">
+          {DESIGN_CHECKLIST.map((c) => {
+            const statusCfg = {
+              pass: { icon: <CheckCircle className="w-3.5 h-3.5" />, color: "var(--wiring-success)", label: "통과" },
+              warning: { icon: <AlertTriangle className="w-3.5 h-3.5" />, color: "var(--wiring-warning)", label: "주의" },
+              fail: { icon: <XCircle className="w-3.5 h-3.5" />, color: "var(--wiring-danger)", label: "미통과" },
+            }[c.status];
+            return (
+              <div key={c.id} className="flex items-start gap-2.5 p-2 rounded-lg bg-[var(--wiring-glass-bg)]">
+                <span style={{ color: statusCfg.color }} className="shrink-0 mt-0.5">{statusCfg.icon}</span>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2">
+                    <p className="text-xs text-[var(--wiring-text-primary)]">{c.label}</p>
+                    <span className="text-[10px] px-1.5 py-0.5 rounded" style={{ color: statusCfg.color, backgroundColor: `${statusCfg.color}18` }}>
+                      {statusCfg.label}
+                    </span>
+                  </div>
+                  {c.note && <p className="text-[10px] text-[var(--wiring-text-tertiary)] mt-0.5">{c.note}</p>}
+                </div>
+              </div>
+            );
+          })}
         </div>
       </div>
     </div>
@@ -607,6 +768,71 @@ function ModelAllocationSection({ item }: { item: HITLQueueItem }) {
               </div>
             </div>
           ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function CostApprovalSection({ item }: { item: HITLQueueItem }) {
+  const ca = item.costApproval;
+  if (!ca) return null;
+  const spentPct = ca.currentBudget > 0 ? Math.round((ca.currentSpent / ca.currentBudget) * 100) : 0;
+  const afterBudget = ca.currentBudget + ca.requestedAdditional;
+  const afterPct = afterBudget > 0 ? Math.round((ca.projectedTotal / afterBudget) * 100) : 0;
+  return (
+    <div className="space-y-4">
+      {/* 예산 현황 비교 */}
+      <div className="glass-panel p-5">
+        <h2 className="text-sm font-semibold text-[var(--wiring-text-primary)] mb-4">예산 현황</h2>
+        <div className="grid grid-cols-2 gap-4">
+          {/* 현재 */}
+          <div className="p-3 rounded-lg bg-[var(--wiring-glass-bg)] border border-[var(--wiring-glass-border)]">
+            <p className="text-xs text-[var(--wiring-text-tertiary)] mb-2">현재</p>
+            <div className="flex items-end justify-between mb-2">
+              <span className="text-lg font-bold text-[var(--wiring-text-primary)]">${ca.currentSpent}</span>
+              <span className="text-xs text-[var(--wiring-text-tertiary)]">/ ${ca.currentBudget}</span>
+            </div>
+            <div className="h-2 rounded-full bg-[var(--wiring-glass-border)]">
+              <div className="h-2 rounded-full" style={{ width: `${Math.min(spentPct, 100)}%`, backgroundColor: spentPct >= 90 ? "var(--wiring-danger)" : spentPct >= 70 ? "var(--wiring-warning)" : "var(--wiring-accent)" }} />
+            </div>
+            <p className="text-[10px] text-[var(--wiring-text-tertiary)] mt-1">{spentPct}% 소진</p>
+          </div>
+          {/* 승인 후 */}
+          <div className="p-3 rounded-lg border" style={{ borderColor: "var(--wiring-accent)", backgroundColor: "rgba(124,92,252,0.04)" }}>
+            <p className="text-xs text-[var(--wiring-accent)] mb-2">승인 후 예상</p>
+            <div className="flex items-end justify-between mb-2">
+              <span className="text-lg font-bold text-[var(--wiring-accent)]">${ca.projectedTotal}</span>
+              <span className="text-xs text-[var(--wiring-text-tertiary)]">/ ${afterBudget}</span>
+            </div>
+            <div className="h-2 rounded-full bg-[var(--wiring-glass-border)]">
+              <div className="h-2 rounded-full bg-[var(--wiring-accent)]" style={{ width: `${Math.min(afterPct, 100)}%` }} />
+            </div>
+            <p className="text-[10px] text-[var(--wiring-text-tertiary)] mt-1">{afterPct}% 소진 예상</p>
+          </div>
+        </div>
+      </div>
+
+      {/* 추가 예산 요청 */}
+      <div className="glass-panel p-5">
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="text-sm font-semibold text-[var(--wiring-text-primary)]">추가 예산 요청</h2>
+          <span className="text-lg font-bold text-[var(--wiring-warning)]">+${ca.requestedAdditional}</span>
+        </div>
+        <p className="text-xs text-[var(--wiring-text-secondary)] mb-3">{ca.reason}</p>
+
+        {/* 내역 */}
+        <div className="space-y-1.5">
+          {ca.breakdown.map((b, i) => (
+            <div key={i} className="flex items-center justify-between p-2 rounded-lg bg-[var(--wiring-glass-bg)]">
+              <span className="text-xs text-[var(--wiring-text-secondary)]">{b.item}</span>
+              <span className="text-xs font-medium text-[var(--wiring-text-primary)]">${b.cost}</span>
+            </div>
+          ))}
+          <div className="flex items-center justify-between p-2 border-t border-[var(--wiring-glass-border)]">
+            <span className="text-xs font-medium text-[var(--wiring-text-primary)]">합계</span>
+            <span className="text-sm font-bold text-[var(--wiring-warning)]">${ca.breakdown.reduce((s, b) => s + b.cost, 0)}</span>
+          </div>
         </div>
       </div>
     </div>

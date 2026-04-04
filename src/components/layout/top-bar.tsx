@@ -43,6 +43,7 @@ const BREADCRUMB_MAP: Record<string, string> = {
   "/analytics": "분석 대시보드",
   "/activity": "활동 로그",
   "/profile": "내 프로필",
+  "/my-work": "내 업무",
 };
 
 function getBreadcrumb(pathname: string): string {

@@ -72,6 +72,16 @@ export interface HITLQueueItem {
   selectedCandidate?: string;
   designUrl?: string;
   allocation?: ModelAllocationData;
+  costApproval?: CostApprovalData;
+}
+
+export interface CostApprovalData {
+  currentBudget: number;
+  currentSpent: number;
+  requestedAdditional: number;
+  projectedTotal: number;
+  reason: string;
+  breakdown: { item: string; cost: number }[];
 }
 
 export interface ModelAllocationData {

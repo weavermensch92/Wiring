@@ -103,9 +103,9 @@ function HomeSubNav() {
       <SectionDivider />
 
       <CollapsibleSection title="내부 업무" defaultOpen>
-        <NavRow label="진행 중" badge={allInProgressTickets.length} indent />
-        <NavRow label="검토 대기" badge={queueItems.filter((i) => i.status === "waiting").length} indent />
-        <NavRow label="예정" badge={4} indent />
+        <NavRow label="진행 중" badge={allInProgressTickets.length} indent onClick={() => router.push("/my-work?tab=tickets")} />
+        <NavRow label="검토 대기" badge={queueItems.filter((i) => i.status === "waiting").length} indent onClick={() => router.push("/my-work?tab=hitl")} />
+        <NavRow label="예정" badge={4} indent onClick={() => router.push("/my-work?tab=schedule")} />
       </CollapsibleSection>
 
       <CollapsibleSection title="외주 업무" defaultOpen>

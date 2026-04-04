@@ -178,4 +178,60 @@ export const DUMMY_HITL_QUEUE: HITLQueueItem[] = [
         "코드 생성 작업에 Sonnet을 집중 배치했습니다. 디자인 작업은 GPT-4o의 이미지 이해 능력을 활용합니다. 단순 분류/정리 작업은 Flash로 비용을 절감합니다.",
     },
   },
+  // ─── cost_approval: 예산 초과 승인 ───
+  {
+    id: "hitl-7",
+    type: "cost_approval",
+    title: "커머스팀 4월 AI 비용 예산 초과 승인",
+    ticketId: undefined,
+    epicId: "epic-cm1-1",
+    priority: "high",
+    status: "waiting",
+    createdAt: "2026-04-04T09:00:00Z",
+    requestedBy: "BM",
+    assignedTo: { id: "user-1", name: "김CTO", level: "L3" },
+    briefing:
+      "커머스팀 4월 AI 비용이 예산($400)의 92%($368)에 도달했습니다. 남은 에픽(상품 리뷰 시스템) 진행을 위해 $150 추가 예산을 요청합니다. 승인 시 4월 총 예산은 $550이 됩니다.",
+    agentDiscussionSummary: "BM Agent 분석: 현 추세대로면 4월 말까지 $480 예상 소진. 추가 예산 없으면 4월 3주차부터 에이전트 일시정지 필요. PM Agent: 상품 리뷰 시스템은 5월 론칭에 필수이므로 예산 확보 권장.",
+    costApproval: {
+      currentBudget: 400,
+      currentSpent: 368,
+      requestedAdditional: 150,
+      projectedTotal: 480,
+      reason: "상품 리뷰 시스템 에픽 진행 + FE/BE Agent 비용 증가",
+      breakdown: [
+        { item: "FE Agent (리뷰 UI)", cost: 65 },
+        { item: "BE Agent (리뷰 API)", cost: 55 },
+        { item: "GM Agent (보안 검토)", cost: 15 },
+        { item: "기타 (PM/SM 조율)", cost: 15 },
+      ],
+    },
+  },
+  // ─── cost_approval: 모델 업그레이드 비용 ───
+  {
+    id: "hitl-8",
+    type: "cost_approval",
+    title: "결제팀 모델 업그레이드 비용 승인",
+    ticketId: "t-py1-3",
+    epicId: "epic-py1-1",
+    priority: "medium",
+    status: "waiting",
+    createdAt: "2026-04-04T11:00:00Z",
+    requestedBy: "BM",
+    assignedTo: { id: "user-1", name: "김CTO", level: "L3" },
+    briefing:
+      "간편결제 연동 작업의 복잡도가 예상보다 높아, BE Agent의 모델을 claude-haiku에서 claude-sonnet-4로 업그레이드해야 합니다. 일간 비용이 $12 → $35로 증가하며, 잔여 작업 기간(5일) 동안 추가 $115가 발생합니다.",
+    agentDiscussionSummary: "SM Agent: 토스페이 연동 코드가 복잡해 haiku로는 오류율 40%. sonnet으로 전환하면 10% 이하로 낮출 수 있음. BM Agent: 5일간 $115 추가, 전체 결제팀 예산 대비 18% 증가.",
+    costApproval: {
+      currentBudget: 320,
+      currentSpent: 185,
+      requestedAdditional: 115,
+      projectedTotal: 300,
+      reason: "BE Agent 모델 업그레이드 (haiku → sonnet-4) — 간편결제 연동 정확도 향상",
+      breakdown: [
+        { item: "모델 비용 차이 (5일)", cost: 95 },
+        { item: "재작업 방지 비용", cost: 20 },
+      ],
+    },
+  },
 ];

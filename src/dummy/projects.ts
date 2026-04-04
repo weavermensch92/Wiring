@@ -244,7 +244,7 @@ export const DUMMY_TICKETS: Record<string, Ticket[]> = {
   "epic-cm1-1": [
     { id: "t-cm1-1", epicId: "epic-cm1-1", title: "이미지 CDN 연동", description: "S3 + CloudFront 이미지 서빙", status: "done", priority: "high", assignedAgent: "BE", estimatedHours: 8, actualHours: 7, costUsd: 21.0 },
     { id: "t-cm1-2", epicId: "epic-cm1-1", title: "갤러리 컴포넌트 개발", description: "이미지 슬라이더 + 줌 UI. Swiper 기반으로 터치/마우스 스와이프를 지원하고, 핀치 줌 + 더블탭 줌 기능을 구현합니다. 기존 FileUploader 컴포넌트와의 인터페이스 호환성을 유지해야 합니다.", status: "in_progress", priority: "high", assignedAgent: "FE", assignedHuman: { id: "user-3", name: "김주니어", level: "L1" }, estimatedHours: 12, hitlRequired: true, hitlType: "code_review", createdAt: "2026-03-25T09:00:00Z", updatedAt: "2026-04-02T14:30:00Z", labels: ["frontend", "component"], subtaskIds: ["sub-1", "sub-2", "sub-3", "sub-4"] },
-    { id: "t-cm1-3", epicId: "epic-cm1-1", title: "이미지 최적화 파이프라인", description: "업로드 시 자동 리사이즈/WebP 변환", status: "todo", priority: "medium", assignedAgent: "BE", estimatedHours: 10 },
+    { id: "t-cm1-3", epicId: "epic-cm1-1", title: "이미지 최적화 파이프라인", description: "업로드된 이미지를 자동으로 리사이즈(4가지 해상도)하고 WebP 포맷으로 변환하는 파이프라인을 구축합니다. Lambda@Edge를 통해 원본 대비 70% 이상 용량을 절감하고, 캐시 무효화 전략도 함께 설계해야 합니다.", status: "todo", priority: "medium", assignedAgent: "BE", assignedHuman: { id: "user-1", name: "김CTO", level: "L3" }, estimatedHours: 10, createdAt: "2026-03-28T09:00:00Z", labels: ["backend", "infra", "optimization"] },
     { id: "t-cm1-4", epicId: "epic-cm1-1", title: "360도 뷰어 프로토타입", description: "상품 360도 회전 뷰어", status: "backlog", priority: "low", assignedAgent: null, estimatedHours: 16 },
   ],
   // 상품 리뷰 시스템
@@ -263,9 +263,9 @@ export const DUMMY_TICKETS: Record<string, Ticket[]> = {
   "epic-py1-1": [
     { id: "t-py1-1", epicId: "epic-py1-1", title: "PG SDK 초기 연동", description: "신규 PG사 SDK 설치 및 초기 설정", status: "done", priority: "critical", assignedAgent: "BE", estimatedHours: 8, actualHours: 6, costUsd: 18.0 },
     { id: "t-py1-2", epicId: "epic-py1-1", title: "카드 결제 구현", description: "신용/체크카드 결제 로직", status: "done", priority: "critical", assignedAgent: "BE", estimatedHours: 16, actualHours: 14, costUsd: 42.0 },
-    { id: "t-py1-3", epicId: "epic-py1-1", title: "간편결제 연동", description: "카카오페이/네이버페이 연동", status: "in_progress", priority: "high", assignedAgent: "BE", estimatedHours: 12 },
+    { id: "t-py1-3", epicId: "epic-py1-1", title: "간편결제 연동", description: "카카오페이, 네이버페이, 토스페이 3종 간편결제를 순차적으로 연동합니다. 각 결제사 SDK 초기화, 결제 요청/승인/취소 플로우를 구현하고, 웹훅 핸들러로 비동기 결과를 처리해야 합니다. 테스트 환경(sandbox)과 운영 환경 분리 필수.", status: "in_progress", priority: "high", assignedAgent: "BE", assignedHuman: { id: "user-1", name: "김CTO", level: "L3" }, estimatedHours: 12, createdAt: "2026-03-22T09:00:00Z", updatedAt: "2026-04-03T11:00:00Z", labels: ["backend", "payment", "sdk"], subtaskIds: ["sub-8", "sub-9", "sub-10", "sub-11"] },
     { id: "t-py1-4", epicId: "epic-py1-1", title: "결제 UI 컴포넌트", description: "결제 수단 선택 + 결제 진행 UI. 카드/간편결제/계좌이체 3가지 탭으로 구분하고, 각 결제 수단별 입력 폼을 구현합니다. PG SDK의 결제창 호출 인터페이스와 연동해야 합니다.", status: "review", priority: "high", assignedAgent: "FE", assignedHuman: { id: "user-2", name: "이시니어", level: "L2" }, estimatedHours: 10, hitlRequired: true, hitlType: "code_review", createdAt: "2026-03-20T10:00:00Z", updatedAt: "2026-04-01T16:00:00Z", labels: ["frontend", "payment"], subtaskIds: ["sub-5", "sub-6", "sub-7"] },
-    { id: "t-py1-5", epicId: "epic-py1-1", title: "결제 보안 검토", description: "PCI-DSS 준수 여부 검토", status: "todo", priority: "critical", assignedAgent: "GM", estimatedHours: 6, hitlRequired: true, hitlType: "security_approval" },
+    { id: "t-py1-5", epicId: "epic-py1-1", title: "결제 보안 검토", description: "PCI-DSS 준수 여부를 검토하고, 카드번호/CVV 로깅 여부 감사, 세션 토큰 관리 방식, 외부 API 호출 시 TLS 강제 적용 등을 확인합니다. GM Agent가 자동 스캔 후 결과를 HITL로 제출합니다.", status: "todo", priority: "critical", assignedAgent: "GM", assignedHuman: { id: "user-1", name: "김CTO", level: "L3" }, estimatedHours: 6, hitlRequired: true, hitlType: "security_approval", labels: ["security", "compliance"] },
   ],
   // 정산 배치 시스템
   "epic-py2-1": [
@@ -276,14 +276,14 @@ export const DUMMY_TICKETS: Record<string, Ticket[]> = {
   // 블록 에디터
   "epic-ct1-1": [
     { id: "t-ct1-1", epicId: "epic-ct1-1", title: "에디터 코어 설계", description: "Tiptap 기반 에디터 아키텍처", status: "done", priority: "high", assignedAgent: "FE", estimatedHours: 12, actualHours: 10, costUsd: 30.0 },
-    { id: "t-ct1-2", epicId: "epic-ct1-1", title: "블록 타입 구현", description: "텍스트/이미지/코드/테이블 블록", status: "in_progress", priority: "high", assignedAgent: "FE", estimatedHours: 16 },
+    { id: "t-ct1-2", epicId: "epic-ct1-1", title: "블록 타입 구현", description: "텍스트/이미지/코드/테이블/임베드 5가지 블록 타입을 Tiptap Extension으로 구현합니다. 각 블록은 삽입/삭제/드래그 재정렬을 지원하고, 코드 블록은 syntax highlighting(Prism)을 적용합니다.", status: "in_progress", priority: "high", assignedAgent: "FE", assignedHuman: { id: "user-1", name: "김CTO", level: "L3" }, estimatedHours: 16, createdAt: "2026-03-15T09:00:00Z", updatedAt: "2026-04-04T10:00:00Z", labels: ["frontend", "editor"], subtaskIds: ["sub-12", "sub-13", "sub-14", "sub-15"] },
     { id: "t-ct1-3", epicId: "epic-ct1-1", title: "실시간 협업", description: "WebSocket 기반 동시 편집", status: "todo", priority: "medium", assignedAgent: "BE", estimatedHours: 20, dependsOn: ["t-ct1-2"] },
     { id: "t-ct1-4", epicId: "epic-ct1-1", title: "에디터 접근 권한", description: "문서별 읽기/쓰기 권한 관리", status: "backlog", priority: "medium", assignedAgent: "GM", estimatedHours: 6, hitlRequired: true, hitlType: "security_approval" },
   ],
   // 빌드 속도 개선
   "epic-pf1-1": [
     { id: "t-pf1-1", epicId: "epic-pf1-1", title: "캐시 레이어 도입", description: "빌드 캐시 계층 구성", status: "done", priority: "high", assignedAgent: "BE", estimatedHours: 6, actualHours: 5, costUsd: 15.0 },
-    { id: "t-pf1-2", epicId: "epic-pf1-1", title: "병렬 빌드 구성", description: "멀티스테이지 병렬 빌드", status: "in_progress", priority: "high", assignedAgent: "BE", estimatedHours: 8 },
+    { id: "t-pf1-2", epicId: "epic-pf1-1", title: "병렬 빌드 구성", description: "GitHub Actions 워크플로우를 멀티스테이지 병렬 빌드로 전환합니다. 린트/타입체크/유닛테스트/빌드를 병렬 실행하고, 매트릭스 전략으로 Node 18/20 크로스 호환 검증. 예상 빌드 시간 12분→5분 단축.", status: "in_progress", priority: "high", assignedAgent: "BE", assignedHuman: { id: "user-1", name: "김CTO", level: "L3" }, estimatedHours: 8, createdAt: "2026-03-18T09:00:00Z", labels: ["devops", "ci-cd"] },
     { id: "t-pf1-3", epicId: "epic-pf1-1", title: "빌드 메트릭 수집", description: "빌드 시간 추적 대시보드", status: "todo", priority: "medium", assignedAgent: "FE", estimatedHours: 4 },
   ],
   // 메트릭 수집
@@ -343,6 +343,33 @@ export const DUMMY_SUBTASKS: Record<string, Subtask[]> = {
     { id: "sub-6", ticketId: "t-py1-4", title: "카드 결제 입력 폼", completed: true },
     { id: "sub-7", ticketId: "t-py1-4", title: "간편결제 SDK 호출 연동", completed: false },
   ],
+  "t-py1-3": [
+    { id: "sub-8", ticketId: "t-py1-3", title: "카카오페이 SDK 초기화 + 결제 요청", completed: true },
+    { id: "sub-9", ticketId: "t-py1-3", title: "네이버페이 연동 (결제/취소)", completed: true },
+    { id: "sub-10", ticketId: "t-py1-3", title: "토스페이 연동 (결제/취소)", completed: false },
+    { id: "sub-11", ticketId: "t-py1-3", title: "웹훅 핸들러 + 비동기 결과 처리", completed: false },
+  ],
+  "t-ct1-2": [
+    { id: "sub-12", ticketId: "t-ct1-2", title: "텍스트 블록 + 마크다운 변환", completed: true },
+    { id: "sub-13", ticketId: "t-ct1-2", title: "이미지 블록 + 드래그 업로드", completed: true },
+    { id: "sub-14", ticketId: "t-ct1-2", title: "코드 블록 + Prism 하이라이팅", completed: false },
+    { id: "sub-15", ticketId: "t-ct1-2", title: "테이블 블록 + 셀 편집", completed: false },
+  ],
+  "t-cm2-2": [
+    { id: "sub-16", ticketId: "t-cm2-2", title: "수량 증감 버튼 애니메이션", completed: true },
+    { id: "sub-17", ticketId: "t-cm2-2", title: "인라인 숫자 입력 + 유효성 검증", completed: false },
+    { id: "sub-18", ticketId: "t-cm2-2", title: "장바구니 총액 실시간 업데이트", completed: false },
+  ],
+  "t-pf2-3": [
+    { id: "sub-19", ticketId: "t-pf2-3", title: "Slack 알림 웹훅 연동", completed: true },
+    { id: "sub-20", ticketId: "t-pf2-3", title: "PagerDuty 인시던트 자동 생성", completed: false },
+    { id: "sub-21", ticketId: "t-pf2-3", title: "임계값 기반 에스컬레이션 규칙", completed: false },
+  ],
+  "t-gr1-3": [
+    { id: "sub-22", ticketId: "t-gr1-3", title: "온보딩 이벤트 로깅 API", completed: true },
+    { id: "sub-23", ticketId: "t-gr1-3", title: "퍼널 단계별 전환율 계산 로직", completed: false },
+    { id: "sub-24", ticketId: "t-gr1-3", title: "A/B 그룹 분배 + 실험 플랫폼 연동", completed: false },
+  ],
 };
 
 // ─── Comments ───
@@ -357,6 +384,20 @@ export const DUMMY_COMMENTS: Record<string, TicketComment[]> = {
   "t-py1-4": [
     { id: "cmt-5", ticketId: "t-py1-4", author: { type: "agent", name: "BE", id: "agent-be" }, content: "결제 API 엔드포인트 준비 완료. POST /api/payments/initiate 로 호출하면 됩니다.", timestamp: "2026-03-28T09:00:00Z" },
     { id: "cmt-6", ticketId: "t-py1-4", author: { type: "human", name: "이시니어", id: "user-2" }, content: "카드 결제 폼 리뷰 완료. 카드번호 마스킹 처리가 빠져있어서 추가 필요합니다.", timestamp: "2026-04-01T15:00:00Z" },
+  ],
+  "t-py1-3": [
+    { id: "cmt-7", ticketId: "t-py1-3", author: { type: "agent", name: "BE", id: "agent-be" }, content: "카카오페이 sandbox 테스트 통과. 결제 요청 → 승인 → 콜백 전체 플로우 확인 완료.", timestamp: "2026-03-30T14:00:00Z" },
+    { id: "cmt-8", ticketId: "t-py1-3", author: { type: "agent", name: "BE", id: "agent-be" }, content: "네이버페이 연동 완료. 취소 API가 비동기라 웹훅 대기 필요합니다.", timestamp: "2026-04-02T11:00:00Z" },
+    { id: "cmt-9", ticketId: "t-py1-3", author: { type: "human", name: "김CTO", id: "user-1" }, content: "토스페이 연동은 신규 계약 완료 후 진행해 주세요. 계약팀에 확인 중입니다.", timestamp: "2026-04-03T09:30:00Z" },
+  ],
+  "t-ct1-2": [
+    { id: "cmt-10", ticketId: "t-ct1-2", author: { type: "agent", name: "FE", id: "agent-fe" }, content: "텍스트/이미지 블록 구현 완료. Tiptap Extension 기반으로 Node 스펙에 맞게 커스텀했습니다.", timestamp: "2026-04-01T10:00:00Z" },
+    { id: "cmt-11", ticketId: "t-ct1-2", author: { type: "human", name: "김CTO", id: "user-1" }, content: "코드 블록 Prism 적용 시 번들 크기 영향도 같이 체크해 주세요.", timestamp: "2026-04-02T15:00:00Z" },
+    { id: "cmt-12", ticketId: "t-ct1-2", author: { type: "agent", name: "SM", id: "agent-sm" }, content: "Prism은 lazy-load 방식으로 필요 언어만 로드하면 ~50KB 수준. 수용 가능합니다.", timestamp: "2026-04-02T15:30:00Z" },
+  ],
+  "t-pf1-2": [
+    { id: "cmt-13", ticketId: "t-pf1-2", author: { type: "agent", name: "BE", id: "agent-be" }, content: "GitHub Actions 매트릭스 전략으로 Node 18/20 병렬 테스트 설정 완료. 빌드 12분→7분으로 단축.", timestamp: "2026-04-03T14:00:00Z" },
+    { id: "cmt-14", ticketId: "t-pf1-2", author: { type: "human", name: "김CTO", id: "user-1" }, content: "좋습니다. 캐시 히트율 모니터링도 추가해 주세요.", timestamp: "2026-04-03T14:30:00Z" },
   ],
 };
 
@@ -376,5 +417,20 @@ export const DUMMY_ACTIVITIES: Record<string, TicketActivity[]> = {
     { id: "act-8", ticketId: "t-py1-4", type: "assignment", description: "FE Agent에 배정", timestamp: "2026-03-22T09:05:00Z" },
     { id: "act-9", ticketId: "t-py1-4", type: "status_change", description: "상태 변경: In Progress → Review", timestamp: "2026-03-31T16:00:00Z" },
     { id: "act-10", ticketId: "t-py1-4", type: "hitl_request", description: "코드 리뷰 HITL 요청 생성", timestamp: "2026-04-01T10:00:00Z" },
+  ],
+  "t-py1-3": [
+    { id: "act-11", ticketId: "t-py1-3", type: "assignment", description: "BE Agent에 배정, 김CTO 리뷰어", timestamp: "2026-03-22T09:00:00Z" },
+    { id: "act-12", ticketId: "t-py1-3", type: "status_change", description: "상태 변경: To Do → In Progress", timestamp: "2026-03-22T10:00:00Z" },
+    { id: "act-13", ticketId: "t-py1-3", type: "comment", description: "BE Agent: 카카오페이 sandbox 테스트 완료", timestamp: "2026-03-30T14:00:00Z" },
+    { id: "act-14", ticketId: "t-py1-3", type: "cost_update", description: "비용 갱신: +$18.5 (BE Agent)", timestamp: "2026-04-02T16:00:00Z" },
+  ],
+  "t-ct1-2": [
+    { id: "act-15", ticketId: "t-ct1-2", type: "assignment", description: "FE Agent에 배정, 김CTO 감독", timestamp: "2026-03-15T09:00:00Z" },
+    { id: "act-16", ticketId: "t-ct1-2", type: "status_change", description: "상태 변경: Backlog → In Progress", timestamp: "2026-03-20T10:00:00Z" },
+    { id: "act-17", ticketId: "t-ct1-2", type: "comment", description: "FE Agent: 텍스트/이미지 블록 구현 완료", timestamp: "2026-04-01T10:00:00Z" },
+  ],
+  "t-pf1-2": [
+    { id: "act-18", ticketId: "t-pf1-2", type: "assignment", description: "BE Agent에 배정", timestamp: "2026-03-18T09:00:00Z" },
+    { id: "act-19", ticketId: "t-pf1-2", type: "status_change", description: "상태 변경: To Do → In Progress", timestamp: "2026-03-25T10:00:00Z" },
   ],
 };

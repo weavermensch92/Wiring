@@ -1,6 +1,6 @@
 # GRIDGE Wiring AI — 프로젝트 컨텍스트 문서
 
-> 마지막 업데이트: 2026-04-04 (Phase 17~30 완료)
+> 마지막 업데이트: 2026-04-05 (Phase 17~35 완료)
 > 브랜치: `claude/dev-management-groupware-ui-6hnmp` (main에 머지 완료)
 
 ---
@@ -312,6 +312,7 @@ shadcn/ui 기반 (모두 @base-ui/react 프리미티브 사용):
 | `/analytics` | 분석 대시보드 (4탭: 티켓 추이/에이전트 비용/HITL 대기/팀 속도) |
 | `/activity` | 전사 활동 로그 (날짜 그룹, 5탭 필터) |
 | `/profile` | 유저 프로필 (개요/HITL 의결/알림 설정 3탭) |
+| `/my-work` | 내 업무 허브 (내 티켓/내 HITL 큐/예정 일정 3탭) |
 | `/docs` | 문서 라이브러리 (목록/검색/필터) |
 | `/docs/[docId]` | 문서 상세 + 마크다운 에디터 (split view) |
 | `/dashboard`, `/documents`, `/flowchart`, `/tickets` | 레거시 → 리다이렉트 처리 완료 |
@@ -551,7 +552,36 @@ Agent 색상: `src/lib/constants.ts` → `AGENT_COLORS`
   - 단계 dot 네비게이션, 건너뛰기 버튼, framer-motion 애니메이션
   - app-shell에 마운트
 
-### 기능 구현 완료 — 프론트엔드 UI 30 Phase 구현 완료
+### Phase 31: 내부 업무 허브 + 더미 데이터 대폭 확충
+- `/my-work` 라우트 신규 (3탭: 내 티켓 / 내 HITL 큐 / 예정 일정)
+- SubNav "내부 업무" 항목에 onClick 라우팅 연결 (/my-work?tab=tickets 등)
+- 더미 확충: 5개 티켓에 assignedHuman + 상세 설명 + 서브태스크(6개 티켓) + 댓글(4개 티켓) + 활동 이력(4개 티켓) 추가
+- cost_approval HITL 2개 추가 + CostApprovalData 타입 신규
+
+### Phase 32: HITL 상세 고도화 (코드 리뷰 / 디자인 / 비용 승인)
+- code_review: **코드 디프 뷰어** — 파일 탭, 추가/삭제/수정 컬러코딩, 줄번호, Agent 인라인 코멘트
+- design_review: **디자인 프리뷰 패널** — Before/After/변경점 3열 비교 + **디자인 체크리스트** (6항목, pass/warning/fail)
+- cost_approval: **비용 승인 전용 UI** — 현재 vs 승인 후 예산 비교 게이지 + 내역 테이블 + 추가 요청액 강조
+
+### Phase 33: 플로차트 인터랙션 고도화
+- **노드 클릭 → 상세 패널**: TicketNode 클릭 시 우측에 티켓 요약 패널 (제목/설명/에이전트/비용/서브태스크 진행률)
+- **상태 필터**: 드롭다운으로 특정 상태만 하이라이트 (나머지 opacity 20%)
+- **에이전트 필터**: 특정 에이전트 노드만 하이라이트
+- 초기화 버튼
+
+### Phase 34: 타임라인 뷰 고도화
+- **오늘 표시선**: 빨간 세로선 + "오늘" 라벨
+- **의존성 표시**: dependsOn 있는 티켓에 ← dep 마커 + 화살표 아이콘
+- **마일스톤 마커**: 에픽 완료 시 다이아몬드 아이콘
+- 에이전트 아바타 표시, 주 단위 가변 너비
+
+### Phase 35: 워크플로우 대시보드
+- ProjectOverview에 **워크플로우 스테이지** 섹션 추가
+  - 5단계 (백로그→할 일→진행 중→검토→완료) 건수 + 비율 표시
+  - 화살표 연결 시각화
+  - **병목 감지**: 검토 3+건 또는 HITL 대기 2+건 시 경고 배너
+
+### 기능 구현 완료 — 프론트엔드 UI 35 Phase 구현 완료
 백엔드 연동 시 추가 필요:
 - [ ] 백엔드 API (REST/GraphQL)
 - [ ] 실시간 소통 (WebSocket/SSE)

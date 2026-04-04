@@ -1,16 +1,21 @@
 "use client";
 
 import { useMemo, useCallback, useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   ReactFlow,
   ReactFlowProvider,
   Panel,
   type Node,
   type Edge,
+  type NodeMouseHandler,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import { useProjectStore } from "@/stores/project-store";
-import { Epic, Ticket } from "@/types/project";
+import { Epic, Ticket, TicketStatus } from "@/types/project";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { AGENT_COLORS } from "@/lib/constants";
+import { X, CheckCircle2, Clock, AlertTriangle, ChevronRight } from "lucide-react";
 import { Routine } from "@/types/routine";
 import { DUMMY_ROUTINES } from "@/dummy/routines";
 import {
@@ -318,10 +323,72 @@ function FlowStats({
   );
 }
 
+// ─── Filter types ───
+type StatusFilter = "all" | TicketStatus;
+type AgentFilter = "all" | string;
+
+const STATUS_LABELS: Record<string, string> = {
+  all: "전체", backlog: "백로그", todo: "할 일", in_progress: "진행 중", review: "검토", done: "완료",
+};
+const STATUS_COLORS: Record<string, string> = {
+  backlog: "var(--wiring-text-tertiary)", todo: "var(--wiring-info)", in_progress: "var(--wiring-accent)", review: "var(--wiring-warning)", done: "var(--wiring-success)",
+};
+
+// ─── Node Detail Panel ───
+function NodeDetailPanel({ ticket, onClose }: { ticket: Ticket | null; onClose: () => void }) {
+  const router = useRouter();
+  if (!ticket) return null;
+  const subs = useProjectStore.getState().subtasks[ticket.id] ?? [];
+  const completedSubs = subs.filter((s) => s.completed).length;
+  return (
+    <div className="w-72 bg-[var(--wiring-bg-secondary)] border border-[var(--wiring-glass-border)] rounded-xl shadow-2xl overflow-hidden">
+      <div className="flex items-center justify-between px-4 py-3 border-b border-[var(--wiring-glass-border)]">
+        <div className="flex items-center gap-2">
+          <span className="w-2 h-2 rounded-full" style={{ backgroundColor: STATUS_COLORS[ticket.status] }} />
+          <p className="text-xs font-semibold text-[var(--wiring-text-primary)]">{STATUS_LABELS[ticket.status]}</p>
+        </div>
+        <button onClick={onClose} className="p-1 rounded text-[var(--wiring-text-tertiary)] hover:bg-[var(--wiring-glass-hover)]">
+          <X className="w-3.5 h-3.5" />
+        </button>
+      </div>
+      <div className="p-4 space-y-3">
+        <p className="text-sm font-medium text-[var(--wiring-text-primary)]">{ticket.title}</p>
+        <p className="text-xs text-[var(--wiring-text-tertiary)] line-clamp-2">{ticket.description}</p>
+        <div className="flex items-center gap-2 flex-wrap">
+          {ticket.assignedAgent && (
+            <div className="flex items-center gap-1">
+              <Avatar className="w-4 h-4">
+                <AvatarFallback className="text-[7px] font-bold text-white" style={{ backgroundColor: AGENT_COLORS[ticket.assignedAgent as keyof typeof AGENT_COLORS] ?? "#888" }}>
+                  {ticket.assignedAgent.slice(0, 2)}
+                </AvatarFallback>
+              </Avatar>
+              <span className="text-[10px] text-[var(--wiring-text-tertiary)]">{ticket.assignedAgent}</span>
+            </div>
+          )}
+          {ticket.hitlRequired && <span className="text-[10px] px-1.5 py-0.5 rounded bg-[var(--hitl-waiting)]/15 text-[var(--hitl-waiting)]">HITL</span>}
+          {ticket.estimatedHours && <span className="text-[10px] text-[var(--wiring-text-tertiary)]">{ticket.estimatedHours}h</span>}
+          {ticket.costUsd != null && <span className="text-[10px] text-[var(--wiring-text-tertiary)]">${ticket.costUsd}</span>}
+        </div>
+        {subs.length > 0 && (
+          <div>
+            <p className="text-[10px] text-[var(--wiring-text-tertiary)] mb-1">서브태스크 {completedSubs}/{subs.length}</p>
+            <div className="h-1 rounded-full bg-[var(--wiring-glass-bg)]">
+              <div className="h-1 rounded-full bg-[var(--wiring-accent)]" style={{ width: `${(completedSubs / subs.length) * 100}%` }} />
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 // ─── Main Component ───
 function FlowchartViewInner({ projectId }: { projectId: string }) {
   const { epics: allEpics, tickets: allTickets, subtasks: allSubtasks } = useProjectStore();
   const [expandedTickets, setExpandedTickets] = useState<Record<string, boolean>>({});
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
+  const [agentFilter, setAgentFilter] = useState<AgentFilter>("all");
+  const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
 
   const projectEpics = useMemo(() => allEpics[projectId] || [], [allEpics, projectId]);
   const projectTickets = useMemo(
@@ -329,7 +396,13 @@ function FlowchartViewInner({ projectId }: { projectId: string }) {
     [projectEpics, allTickets]
   );
 
-  // Memoize to prevent new array reference on every render
+  // 에이전트 목록 추출
+  const agentsInProject = useMemo(() => {
+    const set = new Set<string>();
+    projectTickets.forEach((t) => { if (t.assignedAgent) set.add(t.assignedAgent); });
+    return Array.from(set).sort();
+  }, [projectTickets]);
+
   const relevantRoutines = useMemo(
     () => {
       const epicIds = new Set(projectEpics.map((e) => e.id));
@@ -354,12 +427,39 @@ function FlowchartViewInner({ projectId }: { projectId: string }) {
     [projectEpics, allTickets, allSubtasks, expandedTickets, relevantRoutines, handleToggleExpand]
   );
 
+  // 필터 적용: 노드 opacity 조정
+  const filteredNodes = useMemo(() => {
+    if (statusFilter === "all" && agentFilter === "all") return nodes;
+    return nodes.map((n) => {
+      if (n.type !== "ticket") return n;
+      const data = n.data as TicketNodeData;
+      const matchStatus = statusFilter === "all" || data.status === statusFilter;
+      const matchAgent = agentFilter === "all" || data.agent === agentFilter;
+      if (matchStatus && matchAgent) return n;
+      return { ...n, style: { ...n.style, opacity: 0.2 } };
+    });
+  }, [nodes, statusFilter, agentFilter]);
+
+  // 노드 클릭 핸들러
+  const onNodeClick: NodeMouseHandler = useCallback((_event, node) => {
+    if (node.type === "ticket") {
+      const data = node.data as TicketNodeData;
+      const ticket = projectTickets.find((t) => t.id === data.ticketId);
+      setSelectedTicket(ticket ?? null);
+    } else if (node.type === "hitl") {
+      // HITL 노드 클릭은 별도 처리 가능
+    } else {
+      setSelectedTicket(null);
+    }
+  }, [projectTickets]);
+
   return (
-    <div className="w-full h-full">
+    <div className="w-full h-full relative">
       <ReactFlow
-        nodes={nodes}
+        nodes={filteredNodes}
         edges={edges}
         nodeTypes={nodeTypes}
+        onNodeClick={onNodeClick}
         fitView
         fitViewOptions={{ padding: 0.2 }}
         defaultEdgeOptions={{ type: "smoothstep" }}
@@ -375,15 +475,56 @@ function FlowchartViewInner({ projectId }: { projectId: string }) {
             routineCount={relevantRoutines.length}
           />
         </Panel>
+
+        {/* 필터 바 */}
+        <Panel position="top-left">
+          <div className="flex items-center gap-2 p-2 rounded-xl bg-[var(--wiring-bg-secondary)] border border-[var(--wiring-glass-border)]">
+            {/* 상태 필터 */}
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value as StatusFilter)}
+              className="px-2 py-1 text-[10px] rounded-lg bg-[var(--wiring-glass-bg)] border border-[var(--wiring-glass-border)] text-[var(--wiring-text-secondary)] outline-none"
+            >
+              {["all", "backlog", "todo", "in_progress", "review", "done"].map((s) => (
+                <option key={s} value={s}>{STATUS_LABELS[s]}</option>
+              ))}
+            </select>
+            {/* 에이전트 필터 */}
+            <select
+              value={agentFilter}
+              onChange={(e) => setAgentFilter(e.target.value)}
+              className="px-2 py-1 text-[10px] rounded-lg bg-[var(--wiring-glass-bg)] border border-[var(--wiring-glass-border)] text-[var(--wiring-text-secondary)] outline-none"
+            >
+              <option value="all">전체 에이전트</option>
+              {agentsInProject.map((a) => <option key={a} value={a}>{a}</option>)}
+            </select>
+            {(statusFilter !== "all" || agentFilter !== "all") && (
+              <button
+                onClick={() => { setStatusFilter("all"); setAgentFilter("all"); }}
+                className="text-[10px] text-[var(--wiring-accent)] hover:underline"
+              >
+                초기화
+              </button>
+            )}
+          </div>
+        </Panel>
+
         <Panel position="bottom-left">
           <div className="flex items-center gap-3 px-3 py-1.5 rounded-lg bg-[var(--wiring-bg-secondary)] border border-[var(--wiring-glass-border)] text-[10px] text-[var(--wiring-text-tertiary)]">
-            <span className="flex items-center gap-1"><span className="w-3 h-0.5 bg-[var(--wiring-success)] inline-block rounded" />상시 루틴</span>
-            <span className="flex items-center gap-1"><span className="w-3 h-0.5 bg-[var(--wiring-accent)] inline-block rounded" />에픽 → 티켓</span>
+            <span className="flex items-center gap-1"><span className="w-3 h-0.5 bg-[var(--wiring-success)] inline-block rounded" />루틴</span>
+            <span className="flex items-center gap-1"><span className="w-3 h-0.5 bg-[var(--wiring-accent)] inline-block rounded" />티켓</span>
             <span className="flex items-center gap-1"><span className="w-3 h-0.5 bg-[var(--hitl-waiting)] inline-block rounded border-dashed" />HITL</span>
-            <span className="flex items-center gap-1"><span className="text-[9px]">▶</span> 티켓 클릭 시 서브태스크 전개</span>
+            <span>노드 클릭 → 상세</span>
           </div>
         </Panel>
       </ReactFlow>
+
+      {/* 노드 클릭 시 상세 패널 */}
+      {selectedTicket && (
+        <div className="absolute top-4 right-4 z-10">
+          <NodeDetailPanel ticket={selectedTicket} onClose={() => setSelectedTicket(null)} />
+        </div>
+      )}
     </div>
   );
 }

@@ -269,6 +269,56 @@ export function ProjectOverview({ projectId }: { projectId: string }) {
           </div>
         </div>
 
+        {/* ─── 워크플로우 스테이지 ─── */}
+        <div className="glass-panel p-4">
+          <div className="flex items-center gap-2 mb-4">
+            <Zap className="w-4 h-4 text-[var(--wiring-accent)]" />
+            <p className="text-sm font-semibold text-[var(--wiring-text-primary)]">워크플로우 스테이지</p>
+          </div>
+          <div className="flex items-stretch gap-1">
+            {(["backlog", "todo", "in_progress", "review", "done"] as const).map((status, i) => {
+              const count = allTickets.filter((t) => t.status === status).length;
+              const pct = totalTickets > 0 ? Math.round((count / totalTickets) * 100) : 0;
+              const labels: Record<string, string> = { backlog: "백로그", todo: "할 일", in_progress: "진행 중", review: "검토", done: "완료" };
+              const colors: Record<string, string> = { backlog: "#5C5C6F", todo: "#3B82F6", in_progress: "#7C5CFC", review: "#F59E0B", done: "#22C55E" };
+              return (
+                <div key={status} className="flex-1 flex flex-col items-center">
+                  <div
+                    className="w-full rounded-lg flex items-center justify-center py-3 relative"
+                    style={{ backgroundColor: `${colors[status]}15`, border: `1px solid ${colors[status]}30` }}
+                  >
+                    <p className="text-lg font-bold" style={{ color: colors[status] }}>{count}</p>
+                    {i < 4 && (
+                      <div className="absolute -right-2 top-1/2 -translate-y-1/2 w-3 h-3 flex items-center justify-center text-[var(--wiring-text-tertiary)] z-10">
+                        →
+                      </div>
+                    )}
+                  </div>
+                  <p className="text-[10px] text-[var(--wiring-text-tertiary)] mt-1.5">{labels[status]}</p>
+                  <p className="text-[9px] text-[var(--wiring-text-tertiary)]">{pct}%</p>
+                </div>
+              );
+            })}
+          </div>
+          {/* 병목 감지 */}
+          {(() => {
+            const reviewCount = allTickets.filter((t) => t.status === "review").length;
+            const hitlBlocking = allTickets.filter((t) => t.hitlRequired && t.status !== "done").length;
+            if (reviewCount >= 3 || hitlBlocking >= 2) {
+              return (
+                <div className="mt-3 p-2.5 rounded-lg bg-[var(--wiring-warning)]/10 border border-[var(--wiring-warning)]/20 flex items-center gap-2">
+                  <AlertTriangle className="w-3.5 h-3.5 text-[var(--wiring-warning)] shrink-0" />
+                  <p className="text-xs text-[var(--wiring-warning)]">
+                    {reviewCount >= 3 ? `검토 단계에 ${reviewCount}개 티켓이 적체됨. ` : ""}
+                    {hitlBlocking >= 2 ? `HITL 승인 대기 ${hitlBlocking}건 — 병목 가능성.` : ""}
+                  </p>
+                </div>
+              );
+            }
+            return null;
+          })()}
+        </div>
+
         {/* 최근 완료 활동 */}
         <div className="glass-panel p-4">
           <div className="flex items-center gap-2 mb-3">
