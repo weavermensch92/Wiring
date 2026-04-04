@@ -41,7 +41,7 @@ export function IconNav() {
   const isActive = (section: NavSection) => activeSection === section;
 
   return (
-    <nav className="flex flex-col items-center w-16 h-screen bg-[var(--wiring-bg-secondary)] border-r border-[var(--wiring-glass-border)] shrink-0">
+    <nav data-tour="icon-nav" className="flex flex-col items-center w-16 h-screen bg-[var(--wiring-bg-secondary)] border-r border-[var(--wiring-glass-border)] shrink-0">
       {/* Logo */}
       <div className="flex items-center justify-center w-full h-14 mb-2 shrink-0">
         <span className="text-sm font-bold text-[var(--wiring-accent)]">W</span>

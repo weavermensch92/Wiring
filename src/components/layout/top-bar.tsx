@@ -140,6 +140,7 @@ export function TopBar() {
       {/* Right: search + HITL badge + chat toggle */}
       <div className="flex items-center gap-2">
         <button
+          data-tour="search-btn"
           onClick={openSearch}
           className="flex items-center gap-2 h-8 px-3 rounded-lg text-xs text-[var(--wiring-text-tertiary)] bg-[var(--wiring-glass-bg)] border border-[var(--wiring-glass-border)] hover:border-[var(--wiring-accent)] hover:text-[var(--wiring-text-secondary)] transition-all w-48"
           title="검색 (Ctrl+K)"
@@ -151,6 +152,7 @@ export function TopBar() {
 
         {waitingCount > 0 && (
           <Badge
+            data-tour="hitl-badge"
             variant="secondary"
             className="bg-[var(--hitl-waiting)] text-black text-[10px] px-1.5 py-0.5"
           >
@@ -169,6 +171,7 @@ export function TopBar() {
         </button>
 
         <button
+          data-tour="chat-toggle"
           onClick={toggleChatPanel}
           className={`relative p-2 rounded-lg transition-all duration-150 ${
             chatPanelOpen

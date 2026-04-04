@@ -534,6 +534,7 @@ export function SubNavPanel() {
 
   return (
     <div
+      data-tour="sub-nav"
       className="flex flex-col h-full border-r border-[var(--wiring-glass-border)] bg-[var(--wiring-bg-secondary)] shrink-0"
       style={{ width: subNavWidth }}
     >

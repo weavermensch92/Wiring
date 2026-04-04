@@ -11,7 +11,7 @@ export function MainWorkspace({ children }: MainWorkspaceProps) {
   const pathname = usePathname();
 
   return (
-    <main className="flex-1 overflow-y-auto bg-[var(--wiring-bg-primary)]">
+    <main data-tour="main-workspace" className="flex-1 overflow-y-auto bg-[var(--wiring-bg-primary)]">
       <AnimatePresence mode="wait">
         <motion.div
           key={pathname}

@@ -137,6 +137,12 @@ export default function ProfilePage() {
                 <div className="flex items-center gap-1.5 text-xs text-[var(--wiring-text-tertiary)]">
                   <Users className="w-3.5 h-3.5" />{myTeams.length}개 팀 소속
                 </div>
+                <button
+                  onClick={() => { (window as any).__startWiringTour?.(); }}
+                  className="text-xs text-[var(--wiring-accent)] hover:underline"
+                >
+                  가이드 투어 다시 보기
+                </button>
               </div>
             </div>
           </div>
