@@ -7,6 +7,7 @@ import { Ticket } from "@/types/project";
 interface NavigationState {
   activeSection: NavSection;
   activeProjectId: string | null;
+  activeEpicId: string | null;
   subNavCollapsed: boolean;
   // Drill-down expand state
   expandedProjects: Record<string, boolean>;
@@ -20,6 +21,7 @@ interface NavigationState {
   // Actions
   setActiveSection: (section: NavSection) => void;
   setActiveProjectId: (projectId: string | null) => void;
+  setActiveEpicId: (epicId: string | null) => void;
   toggleSubNav: () => void;
   setSubNavCollapsed: (collapsed: boolean) => void;
   toggleProjectExpand: (projectId: string) => void;
@@ -34,6 +36,7 @@ interface NavigationState {
 export const useNavigationStore = create<NavigationState>((set) => ({
   activeSection: "home",
   activeProjectId: null,
+  activeEpicId: null,
   subNavCollapsed: false,
   expandedProjects: {},
   expandedEpics: {},
@@ -43,6 +46,7 @@ export const useNavigationStore = create<NavigationState>((set) => ({
   newTicketOpen: false,
   setActiveSection: (section) => set({ activeSection: section }),
   setActiveProjectId: (projectId) => set({ activeProjectId: projectId }),
+  setActiveEpicId: (epicId) => set({ activeEpicId: epicId }),
   toggleSubNav: () => set((s) => ({ subNavCollapsed: !s.subNavCollapsed })),
   setSubNavCollapsed: (collapsed) => set({ subNavCollapsed: collapsed }),
   toggleProjectExpand: (id) =>

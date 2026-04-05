@@ -11,15 +11,18 @@ import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Home,
+  Inbox,
   BookOpen,
   Shield,
   Settings,
   BarChart3,
 } from "lucide-react";
 import { NavSection } from "@/types/navigation";
+import { useInboxStore } from "@/stores/inbox-store";
 
 const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
   Home,
+  Inbox,
   BookOpen,
   Shield,
   Settings,
@@ -32,6 +35,7 @@ export function IconNav() {
   const router = useRouter();
   const pathname = usePathname();
   const { activeSection, setActiveSection } = useNavigationStore();
+  const inboxUnread = useInboxStore((s) => s.messages.filter((m) => m.status === "unread").length);
 
   const handleNav = (id: NavSection, href: string) => {
     setActiveSection(id);
@@ -52,11 +56,13 @@ export function IconNav() {
         {TOP_NAV_ITEMS.map((item) => {
           const Icon = ICON_MAP[item.icon];
           const active = isActive(item.id);
+          const badge = item.id === "inbox" ? inboxUnread : 0;
           return (
             <NavButton
               key={item.id}
               active={active}
               label={item.label}
+              badge={badge}
               onClick={() => handleNav(item.id, item.href)}
             >
               {Icon && <Icon className="w-5 h-5" />}
@@ -149,11 +155,13 @@ export function IconNav() {
 function NavButton({
   active,
   label,
+  badge,
   onClick,
   children,
 }: {
   active: boolean;
   label: string;
+  badge?: number;
   onClick: () => void;
   children: React.ReactNode;
 }) {
@@ -171,6 +179,11 @@ function NavButton({
           <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[2px] h-5 bg-[var(--wiring-accent)] rounded-r" />
         )}
         {children}
+        {badge !== undefined && badge > 0 && (
+          <span className="absolute -top-0.5 -right-0.5 min-w-[16px] h-4 px-1 flex items-center justify-center rounded-full bg-[var(--wiring-accent)] text-white text-[9px] font-bold">
+            {badge > 9 ? "9+" : badge}
+          </span>
+        )}
       </TooltipTrigger>
       <TooltipContent side="right" sideOffset={8}>
         {label}
