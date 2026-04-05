@@ -14,14 +14,17 @@ import {
 } from "@dnd-kit/core";
 import { Ticket, TicketStatus } from "@/types/project";
 import { useProjectStore } from "@/stores/project-store";
+import { useNavigationStore } from "@/stores/navigation-store";
 import { KanbanColumn } from "./kanban-column";
 import { KanbanCardOverlay } from "./kanban-card";
 import { TicketDetailDialog } from "./ticket-detail-dialog";
 import { AddTicketDialog } from "./add-ticket-dialog";
+import { X, Layers } from "lucide-react";
 const COLUMNS: TicketStatus[] = ["backlog", "todo", "in_progress", "review", "done"];
 
 export function KanbanBoard({ projectId }: { projectId: string }) {
   const { epics, tickets: allTickets, moveTicket } = useProjectStore();
+  const { activeEpicId, setActiveEpicId } = useNavigationStore();
   const [mounted, setMounted] = useState(false);
   const [activeTicket, setActiveTicket] = useState<Ticket | null>(null);
   const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
@@ -32,9 +35,19 @@ export function KanbanBoard({ projectId }: { projectId: string }) {
   useEffect(() => { setMounted(true); }, []);
 
   const projectEpics = epics[projectId] || [];
+
+  // Active epic info for filter label
+  const activeEpic = activeEpicId
+    ? projectEpics.find((e) => e.id === activeEpicId)
+    : null;
+
   const projectTickets = useMemo(() => {
+    // If an epic is selected and belongs to this project, filter by it
+    if (activeEpicId && projectEpics.some((e) => e.id === activeEpicId)) {
+      return allTickets[activeEpicId] || [];
+    }
     return projectEpics.flatMap((epic) => allTickets[epic.id] || []);
-  }, [projectEpics, allTickets]);
+  }, [projectEpics, allTickets, activeEpicId]);
 
   const ticketsByStatus = useMemo(() => {
     const grouped: Record<TicketStatus, Ticket[]> = {
@@ -150,6 +163,22 @@ export function KanbanBoard({ projectId }: { projectId: string }) {
 
   return (
     <>
+      {/* Epic filter indicator */}
+      {activeEpic && (
+        <div className="flex items-center gap-2 px-4 py-2 border-b border-[var(--wiring-glass-border)] bg-[var(--wiring-accent-glow)]">
+          <Layers className="w-3.5 h-3.5 text-[var(--wiring-accent)]" />
+          <span className="text-xs text-[var(--wiring-accent)] font-medium">{activeEpic.title}</span>
+          <span className="text-xs text-[var(--wiring-text-tertiary)]">— 에픽 필터</span>
+          <button
+            onClick={() => setActiveEpicId(null)}
+            className="ml-auto flex items-center gap-1 text-xs text-[var(--wiring-text-tertiary)] hover:text-[var(--wiring-text-primary)] transition-colors"
+          >
+            <X className="w-3 h-3" />
+            필터 해제
+          </button>
+        </div>
+      )}
+
       <DndContext
         sensors={sensors}
         collisionDetection={closestCorners}

@@ -5,6 +5,7 @@ import { useLayoutStore } from "@/stores/layout-store";
 import { useHITLStore } from "@/stores/hitl-store";
 import { useProjectStore } from "@/stores/project-store";
 import { useFavoritesStore } from "@/stores/favorites-store";
+import { useInboxStore } from "@/stores/inbox-store";
 import { getTeamIdFromSection, isTeamSection, NavSection } from "@/types/navigation";
 import { DUMMY_TEAMS } from "@/dummy/teams";
 import { getProjectsForTeam, getAllTicketsForProject, DUMMY_EPICS, DUMMY_TICKETS } from "@/dummy/projects";
@@ -12,7 +13,7 @@ import { DUMMY_USERS } from "@/dummy/users";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { PanelLeftClose, PanelLeftOpen, Search, Inbox, Clock, Star, CalendarDays, BarChart3, MessageSquare, Plus, Users, Bot, Wallet, ChevronDown, ChevronRight, ExternalLink, FileText, Activity } from "lucide-react";
+import { PanelLeftClose, PanelLeftOpen, Search, Inbox, Mail, Clock, Star, CalendarDays, BarChart3, MessageSquare, Plus, Users, Bot, Wallet, ChevronDown, ChevronRight, ExternalLink, FileText, Activity, Archive, AlertTriangle, FileCheck } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -25,6 +26,7 @@ function getSectionTitle(section: NavSection): string {
   }
   const titles: Record<string, string> = {
     home: "홈",
+    inbox: "인박스",
     skills: "스킬",
     governance: "거버넌스",
     settings: "설정",
@@ -68,6 +70,7 @@ function FavoritesNav() {
 // ─── Home SubNav ───
 function HomeSubNav() {
   const { queueItems } = useHITLStore();
+  const inboxUnread = useInboxStore((s) => s.messages.filter((m) => m.status === "unread").length);
   const router = useRouter();
   const waitingCount = queueItems.filter((i) => i.status === "waiting").length;
 
@@ -89,8 +92,8 @@ function HomeSubNav() {
       <NavRow
         icon={<Inbox className="w-4 h-4" />}
         label="인박스"
-        badge={waitingCount}
-        onClick={() => router.push(`/hitl/${queueItems.find((i) => i.status === "waiting")?.id ?? "hitl-1"}`)}
+        badge={inboxUnread}
+        onClick={() => router.push("/inbox")}
       />
       <NavRow
         icon={<Clock className="w-4 h-4" />}
@@ -165,9 +168,9 @@ function TeamSubNav({ teamId }: { teamId: string }) {
   const members = DUMMY_USERS.filter((u) => u.teamIds.includes(teamId));
   const { subtasks } = useProjectStore();
   const {
-    expandedProjects, expandedEpics, expandedTickets,
+    expandedProjects, expandedEpics, expandedTickets, activeEpicId,
     toggleProjectExpand, toggleEpicExpand, toggleTicketExpand,
-    openTicketDialog,
+    openTicketDialog, setActiveEpicId,
   } = useNavigationStore();
 
   if (!team) return <div className="text-sm text-[var(--wiring-text-tertiary)] px-3 py-2">팀을 찾을 수 없습니다</div>;
@@ -221,12 +224,21 @@ function TeamSubNav({ teamId }: { teamId: string }) {
               const isEpicOpen = !!expandedEpics[epic.id];
               const epicTickets = DUMMY_TICKETS[epic.id] || [];
               const epicDot = EPIC_STATUS_COLORS[epic.status] || "var(--wiring-text-tertiary)";
+              const isActiveEpic = activeEpicId === epic.id;
 
               return (
                 <div key={epic.id}>
                   <button
-                    className="flex items-center gap-1.5 w-full pl-7 pr-3 py-1.5 rounded-lg text-xs text-[var(--wiring-text-secondary)] hover:bg-[var(--wiring-glass-hover)] hover:text-[var(--wiring-text-primary)] transition-colors text-left"
-                    onClick={() => toggleEpicExpand(epic.id)}
+                    className={`flex items-center gap-1.5 w-full pl-7 pr-3 py-1.5 rounded-lg text-xs transition-colors text-left ${
+                      isActiveEpic
+                        ? "bg-[var(--wiring-accent-glow)] text-[var(--wiring-accent)]"
+                        : "text-[var(--wiring-text-secondary)] hover:bg-[var(--wiring-glass-hover)] hover:text-[var(--wiring-text-primary)]"
+                    }`}
+                    onClick={() => {
+                      toggleEpicExpand(epic.id);
+                      setActiveEpicId(isActiveEpic ? null : epic.id);
+                      router.push(`/team/${teamId}/project/${p.id}`);
+                    }}
                   >
                     {isEpicOpen
                       ? <ChevronDown className="w-3 h-3 shrink-0 text-[var(--wiring-text-tertiary)]" />
@@ -498,6 +510,90 @@ function CollapsibleSection({
   );
 }
 
+// ─── Inbox SubNav ───
+function InboxSubNav() {
+  const router = useRouter();
+  const { messages, activeFolder, activeAgentFilter, setActiveFolder, setActiveAgentFilter } = useInboxStore();
+
+  const unreadCount = messages.filter((m) => m.status === "unread").length;
+  const hitlCount = messages.filter((m) => m.category === "hitl_request" && m.status !== "archived").length;
+
+  // Unique agents with unread counts
+  const agentIds = [...new Set(messages.filter((m) => m.senderAgentId).map((m) => m.senderAgentId!))];
+  const agentUnread = (agentId: string) =>
+    messages.filter((m) => m.senderAgentId === agentId && m.status === "unread").length;
+
+  const AGENT_LABEL: Record<string, string> = {
+    "agent-pm": "PM Agent",
+    "agent-gm": "GM Agent",
+    "agent-sm": "SM Agent",
+    "agent-fe": "FE Agent",
+    "agent-be": "BE Agent",
+    "agent-bm": "BM Agent",
+    "agent-dsn": "Dsn Agent",
+    "agent-pln": "Pln Agent",
+    "agent-hr": "HR Agent",
+  };
+
+  const folderActive = (f: string) =>
+    activeFolder === f && !activeAgentFilter ? "bg-[var(--wiring-glass-hover)] text-[var(--wiring-text-primary)]" : "";
+
+  return (
+    <div className="space-y-1">
+      <SearchBar />
+      <SectionDivider />
+
+      <NavRow
+        icon={<Mail className="w-4 h-4" />}
+        label="전체"
+        badge={messages.filter((m) => m.status !== "archived").length}
+        onClick={() => { setActiveFolder("all"); router.push("/inbox"); }}
+      />
+      <NavRow
+        icon={<Inbox className="w-4 h-4" />}
+        label="읽지않음"
+        badge={unreadCount}
+        badgeColor="var(--wiring-accent)"
+        onClick={() => { setActiveFolder("unread"); router.push("/inbox"); }}
+      />
+      <NavRow
+        icon={<Star className="w-4 h-4" />}
+        label="중요"
+        onClick={() => { setActiveFolder("starred"); router.push("/inbox"); }}
+      />
+      <NavRow
+        icon={<Clock className="w-4 h-4" />}
+        label="HITL"
+        badge={hitlCount}
+        badgeColor="var(--hitl-waiting)"
+        onClick={() => { setActiveFolder("hitl"); router.push("/inbox"); }}
+      />
+
+      <SectionDivider />
+
+      <CollapsibleSection title="에이전트별" defaultOpen>
+        {agentIds.map((agentId) => (
+          <NavRow
+            key={agentId}
+            label={AGENT_LABEL[agentId] ?? agentId}
+            badge={agentUnread(agentId)}
+            indent
+            onClick={() => { setActiveAgentFilter(agentId); router.push("/inbox"); }}
+          />
+        ))}
+      </CollapsibleSection>
+
+      <SectionDivider />
+
+      <NavRow
+        icon={<Archive className="w-4 h-4" />}
+        label="보관함"
+        onClick={() => { setActiveFolder("archive"); router.push("/inbox"); }}
+      />
+    </div>
+  );
+}
+
 // ─── Main SubNavPanel ───
 
 function getSubNavContent(section: NavSection): React.ReactNode {
@@ -507,6 +603,7 @@ function getSubNavContent(section: NavSection): React.ReactNode {
   }
   switch (section) {
     case "home": return <HomeSubNav />;
+    case "inbox": return <InboxSubNav />;
     case "skills": return <SkillsSubNav />;
     case "governance": return <GovernanceSubNav />;
     case "settings": return <SettingsSubNav />;

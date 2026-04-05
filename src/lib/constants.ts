@@ -11,6 +11,7 @@ export interface NavItemDef {
 // Fixed top nav items (teams are injected dynamically between home and skills)
 export const TOP_NAV_ITEMS: NavItemDef[] = [
   { id: "home", label: "홈", icon: "Home", href: "/home" },
+  { id: "inbox", label: "인박스", icon: "Inbox", href: "/inbox" },
 ];
 
 // Fixed bottom-middle nav items (below teams)

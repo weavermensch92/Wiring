@@ -10,6 +10,7 @@ import { GlobalSearch } from "./global-search";
 import { ToastContainer } from "./toast-container";
 import { KeyboardHelp } from "./keyboard-help";
 import { OnboardingModal } from "./onboarding";
+import { useRouter } from "next/navigation";
 import { useLayoutStore } from "@/stores/layout-store";
 import { useNavigationStore } from "@/stores/navigation-store";
 import { TicketDetailDialog } from "@/components/project/ticket-detail-dialog";
@@ -25,7 +26,8 @@ export function AppShell({ children }: AppShellProps) {
     openSearch, closeSearch, toggleChatPanel,
     openHelp, closeHelp,
   } = useLayoutStore();
-  const { selectedTicketForDialog, ticketDialogOpen, closeTicketDialog, toggleSubNav, newTicketOpen, openNewTicket, closeNewTicket } = useNavigationStore();
+  const { selectedTicketForDialog, ticketDialogOpen, closeTicketDialog, toggleSubNav, newTicketOpen, openNewTicket, closeNewTicket, setActiveSection } = useNavigationStore();
+  const appRouter = useRouter();
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
@@ -36,11 +38,12 @@ export function AppShell({ children }: AppShellProps) {
       if ((e.metaKey || e.ctrlKey) && e.key === "j") { e.preventDefault(); toggleChatPanel(); return; }
       if ((e.metaKey || e.ctrlKey) && e.key === "b") { e.preventDefault(); toggleSubNav(); return; }
       if ((e.metaKey || e.ctrlKey) && e.key === "n") { e.preventDefault(); openNewTicket(); return; }
+      if ((e.metaKey || e.ctrlKey) && e.key === "i") { e.preventDefault(); setActiveSection("inbox"); appRouter.push("/inbox"); return; }
       if (!isTyping && e.key === "?") { e.preventDefault(); openHelp(); return; }
     };
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
-  }, [openSearch, toggleChatPanel, toggleSubNav, openHelp, openNewTicket]);
+  }, [openSearch, toggleChatPanel, toggleSubNav, openHelp, openNewTicket, setActiveSection, appRouter]);
 
   return (
     <div className="flex h-screen w-screen overflow-hidden bg-[var(--wiring-bg-primary)]">

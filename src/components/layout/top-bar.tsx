@@ -29,6 +29,7 @@ const EXTRA_BREADCRUMB: Record<string, string> = {
 
 const BREADCRUMB_MAP: Record<string, string> = {
   "/home": "홈",
+  "/inbox": "인박스",
   "/skills": "스킬",
   "/governance": "거버넌스",
   "/settings": "설정",

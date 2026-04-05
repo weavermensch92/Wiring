@@ -1,20 +1,30 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { KanbanBoard } from "./kanban-board";
 import { FlowchartView } from "./flowchart-view";
 import { TimelineView } from "./timeline-view";
 import { ProjectOverview } from "./project-overview";
 import { AddEpicDialog } from "./add-epic-dialog";
+import { useNavigationStore } from "@/stores/navigation-store";
 import { LayoutGrid, CalendarDays, GitBranch, BarChart3, Plus, Layers } from "lucide-react";
 
 export function ProjectWorkspace({ projectId }: { projectId: string }) {
   const [addEpicOpen, setAddEpicOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState("overview");
+  const { activeEpicId } = useNavigationStore();
+
+  // 에픽이 선택되면 보드 탭으로 자동 전환
+  useEffect(() => {
+    if (activeEpicId) {
+      setActiveTab("board");
+    }
+  }, [activeEpicId]);
 
   return (
     <>
-    <Tabs defaultValue="overview" className="flex flex-col h-full">
+    <Tabs value={activeTab} onValueChange={setActiveTab} className="flex flex-col h-full">
       <div className="px-4 pt-3 border-b border-[var(--wiring-glass-border)] flex items-center justify-between">
         <TabsList>
           <TabsTrigger value="overview" className="gap-1.5">

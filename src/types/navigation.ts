@@ -1,6 +1,7 @@
 // NavSection can be a fixed section or a dynamic team section (team-{teamId})
 export type NavSection =
   | "home"
+  | "inbox"
   | "skills"
   | "governance"
   | "settings"
