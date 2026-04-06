@@ -42,6 +42,21 @@ export interface HITLQueueItem {
   briefing: string;
   relatedFiles?: string[];
   agentDiscussionSummary?: string;
+  // Harness Engineering — Evidence Pack 필드
+  confidence?: number;        // 0-100
+  riskLevel?: "low" | "medium" | "high" | "critical";
+  evidenceNotes?: {
+    metric: string;
+    current: string;
+    proposed: string;
+    impact: "positive" | "negative" | "neutral";
+  }[];
+  beforeAfterDiff?: {
+    before: string;
+    after: string;
+    addedLines: number;
+    removedLines: number;
+  };
   dataAccessRequest?: {
     table: string;
     columns: string[];

@@ -16,6 +16,19 @@ export const DUMMY_HITL_QUEUE: HITLQueueItem[] = [
       "FE Agent가 ImageUploader 컴포넌트를 작성했습니다. 기존 FileUploader를 확장하여 이미지 미리보기, 드래그앤드롭, 멀티 업로드를 지원합니다.",
     relatedFiles: ["src/components/ImageUploader.tsx", "src/components/FileUploader.tsx"],
     agentDiscussionSummary: "SM이 React DnD 대신 네이티브 Drag API 사용을 권장. FE가 수용하여 구현.",
+    confidence: 87,
+    riskLevel: "medium",
+    beforeAfterDiff: {
+      before: "// FileUploader.tsx — 단일 파일 업로드만 지원\nexport function FileUploader({ onUpload }) {\n  return <input type='file' onChange={onUpload} />;\n}",
+      after: "// ImageUploader.tsx — 멀티 업로드 + 드래그앤드롭 + 미리보기\nexport function ImageUploader({ onUpload, maxFiles = 10 }) {\n  const [previews, setPreviews] = useState([]);\n  // ... DnD + preview logic\n}",
+      addedLines: 342,
+      removedLines: 89,
+    },
+    evidenceNotes: [
+      { metric: "번들 크기", current: "2.4MB", proposed: "2.6MB", impact: "negative" },
+      { metric: "테스트 커버리지", current: "71%", proposed: "84%", impact: "positive" },
+      { metric: "브라우저 호환성", current: "Chrome/Safari", proposed: "Chrome/Safari/Firefox", impact: "positive" },
+    ],
   },
   {
     id: "hitl-2",
@@ -36,6 +49,13 @@ export const DUMMY_HITL_QUEUE: HITLQueueItem[] = [
       purpose: "이미지 소유자 표시",
       duration: "ticket-6 완료 시까지",
     },
+    confidence: 72,
+    riskLevel: "high",
+    evidenceNotes: [
+      { metric: "데이터 분류", current: "로우 데이터", proposed: "읽기 전용 접근", impact: "neutral" },
+      { metric: "접근 범위", current: "없음", proposed: "user_id, display_name", impact: "negative" },
+      { metric: "감사 로그", current: "미적용", proposed: "모든 쿼리 기록", impact: "positive" },
+    ],
   },
   {
     id: "hitl-3",

@@ -13,7 +13,8 @@ import {
   CheckCircle, XCircle, ArrowUpRight, ArrowDownRight,
   FileText, Bot, User, Shield, Palette, DollarSign,
   Users, Cpu, MessageSquare, X,
-  ChevronRight, ChevronDown,
+  ChevronRight, ChevronDown, TrendingUp, TrendingDown, Minus,
+  AlertTriangle as AlertTriangleIcon, ShieldCheck, ShieldAlert,
 } from "lucide-react";
 
 // ─── Config ────────────────────────────────────────────────
@@ -126,6 +127,11 @@ export function HitlWorkspacePanel() {
               </div>
             </div>
           </div>
+
+          {/* Evidence Pack 배너 */}
+          {(item.confidence !== undefined || item.riskLevel) && (
+            <EvidenceBanner item={item} />
+          )}
 
           {/* Briefing */}
           <div className="glass-panel p-5">
@@ -363,6 +369,132 @@ function DecisionTimeline({ history }: { history: DecisionRecord[] }) {
           })}
         </div>
       </div>
+    </div>
+  );
+}
+
+// ─── Evidence Pack 배너 ─────────────────────────────────────
+
+const RISK_CONFIG = {
+  low:      { label: "낮음",   color: "var(--wiring-success)", icon: ShieldCheck },
+  medium:   { label: "보통",   color: "var(--wiring-warning)", icon: AlertTriangleIcon },
+  high:     { label: "높음",   color: "var(--wiring-danger)",  icon: ShieldAlert },
+  critical: { label: "긴급",   color: "var(--wiring-danger)",  icon: ShieldAlert },
+};
+
+const IMPACT_CONFIG = {
+  positive: { icon: TrendingUp,   color: "var(--wiring-success)" },
+  negative: { icon: TrendingDown, color: "var(--wiring-danger)"  },
+  neutral:  { icon: Minus,        color: "var(--wiring-text-tertiary)" },
+};
+
+function EvidenceBanner({ item }: { item: HITLQueueItem }) {
+  const risk = item.riskLevel ? RISK_CONFIG[item.riskLevel] : null;
+  const RiskIcon = risk?.icon;
+
+  // 대기 시간 계산
+  const waitMin = Math.floor((Date.now() - new Date(item.createdAt).getTime()) / 60000);
+  const waitLabel = waitMin < 60 ? `${waitMin}분` : `${Math.floor(waitMin / 60)}시간 ${waitMin % 60}분`;
+
+  return (
+    <div className="space-y-3">
+      {/* 신뢰도 + 리스크 배너 */}
+      <div className="glass-panel p-4 border border-[var(--wiring-glass-border)] space-y-3">
+        <p className="text-[10px] font-bold text-[var(--wiring-text-tertiary)] uppercase tracking-widest">Evidence Summary</p>
+
+        <div className="grid grid-cols-2 gap-4">
+          {/* 신뢰도 */}
+          {item.confidence !== undefined && (
+            <div>
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-xs text-[var(--wiring-text-tertiary)]">신뢰도</span>
+                <span
+                  className="text-sm font-bold"
+                  style={{ color: item.confidence >= 80 ? "var(--wiring-success)" : item.confidence >= 60 ? "var(--wiring-warning)" : "var(--wiring-danger)" }}
+                >
+                  {item.confidence}%
+                </span>
+              </div>
+              <div className="h-1.5 rounded-full bg-[var(--wiring-glass-bg)]">
+                <div
+                  className="h-1.5 rounded-full transition-all"
+                  style={{
+                    width: `${item.confidence}%`,
+                    backgroundColor: item.confidence >= 80 ? "var(--wiring-success)" : item.confidence >= 60 ? "var(--wiring-warning)" : "var(--wiring-danger)",
+                  }}
+                />
+              </div>
+            </div>
+          )}
+
+          {/* 리스크 */}
+          {risk && RiskIcon && (
+            <div className="flex items-center gap-2">
+              <div className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0" style={{ backgroundColor: risk.color + "20" }}>
+                <RiskIcon className="w-3.5 h-3.5" style={{ color: risk.color }} />
+              </div>
+              <div>
+                <p className="text-[10px] text-[var(--wiring-text-tertiary)]">리스크</p>
+                <p className="text-sm font-bold" style={{ color: risk.color }}>{risk.label}</p>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* 메타 정보 */}
+        <div className="flex items-center gap-4 pt-2 border-t border-[var(--wiring-glass-border)]">
+          {item.beforeAfterDiff && (
+            <div className="flex items-center gap-1.5 text-xs">
+              <span className="text-[var(--wiring-success)] font-mono">+{item.beforeAfterDiff.addedLines}</span>
+              <span className="text-[var(--wiring-text-tertiary)]">/</span>
+              <span className="text-[var(--wiring-danger)] font-mono">-{item.beforeAfterDiff.removedLines}</span>
+              <span className="text-[var(--wiring-text-tertiary)]">줄</span>
+            </div>
+          )}
+          {item.relatedFiles && (
+            <div className="text-xs text-[var(--wiring-text-tertiary)]">
+              {item.relatedFiles.length}개 파일
+            </div>
+          )}
+          <div className="ml-auto flex items-center gap-1 text-xs text-[var(--wiring-text-tertiary)]">
+            <span>⏱</span>
+            <span>{waitLabel} 대기</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Evidence Notes 테이블 */}
+      {item.evidenceNotes && item.evidenceNotes.length > 0 && (
+        <div className="glass-panel overflow-hidden">
+          <div className="px-4 py-2 border-b border-[var(--wiring-glass-border)]">
+            <p className="text-[10px] font-bold text-[var(--wiring-text-tertiary)] uppercase tracking-widest">영향 분석</p>
+          </div>
+          <div className="divide-y divide-[var(--wiring-glass-border)]">
+            {item.evidenceNotes.map((note, i) => {
+              const impactCfg = IMPACT_CONFIG[note.impact];
+              const ImpactIcon = impactCfg.icon;
+              return (
+                <div key={i} className="grid grid-cols-4 gap-2 px-4 py-2.5 text-xs">
+                  <span className="text-[var(--wiring-text-secondary)] truncate">{note.metric}</span>
+                  <span className="text-[var(--wiring-text-tertiary)] font-mono truncate">{note.current}</span>
+                  <span className="text-[var(--wiring-text-primary)] font-mono truncate">{note.proposed}</span>
+                  <div className="flex items-center gap-1 justify-end">
+                    <ImpactIcon className="w-3 h-3 shrink-0" style={{ color: impactCfg.color }} />
+                    <span style={{ color: impactCfg.color }}>
+                      {note.impact === "positive" ? "긍정" : note.impact === "negative" ? "부정" : "중립"}
+                    </span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+          <div className="px-4 py-1.5 bg-[var(--wiring-glass-bg)] border-t border-[var(--wiring-glass-border)]">
+            <div className="grid grid-cols-4 gap-2 text-[9px] text-[var(--wiring-text-tertiary)] font-medium">
+              <span>지표</span><span>현재</span><span>변경 후</span><span className="text-right">영향</span>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

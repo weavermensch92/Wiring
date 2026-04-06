@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, lazy, Suspense } from "react";
 import { Ticket, TicketStatus, Priority } from "@/types/project";
 import { useProjectStore } from "@/stores/project-store";
 import { useHITLStore } from "@/stores/hitl-store";
@@ -42,8 +42,10 @@ import {
   Calendar,
   Tag,
   ArrowRight,
+  GitBranch,
 } from "lucide-react";
 import Link from "next/link";
+import { TraceWaterfall } from "@/components/trace/trace-waterfall";
 
 // ─── Constants ───
 
@@ -95,6 +97,7 @@ function TicketDetailInner({ ticket }: { ticket: Ticket }) {
   const { queueItems } = useHITLStore();
   const { setActiveHitl } = useNavigationStore();
   const relatedHITL = queueItems.filter((item) => item.ticketId === ticket.id);
+  const [mainTab, setMainTab] = useState<"detail" | "trace">("detail");
 
   // Find parent epic
   const epic = useMemo(() => {
@@ -138,11 +141,26 @@ function TicketDetailInner({ ticket }: { ticket: Ticket }) {
               HITL
             </Button>
           )}
+          <Button
+            variant="outline"
+            size="sm"
+            className={`h-7 text-xs gap-1 ml-auto ${mainTab === "trace" ? "bg-[var(--wiring-accent-glow)] text-[var(--wiring-accent)] border-[var(--wiring-accent)]" : ""}`}
+            onClick={() => setMainTab(mainTab === "trace" ? "detail" : "trace")}
+          >
+            <GitBranch className="w-3 h-3" />
+            트레이스
+          </Button>
         </div>
       </DialogHeader>
 
-      {/* Body: 2 columns */}
+      {/* Body: 2 columns or trace full-width */}
       <div className="flex flex-1 overflow-hidden">
+        {mainTab === "trace" ? (
+          <div className="flex-1 overflow-y-auto p-6">
+            <TraceWaterfall ticketId={ticket.id} />
+          </div>
+        ) : (
+        <>
         {/* Left Column */}
         <div className="flex-1 overflow-y-auto p-6 space-y-6 border-r border-[var(--wiring-glass-border)]">
           {/* Description */}
@@ -365,6 +383,8 @@ function TicketDetailInner({ ticket }: { ticket: Ticket }) {
             )}
           </section>
         </div>
+        </>
+        )}
       </div>
     </div>
   );

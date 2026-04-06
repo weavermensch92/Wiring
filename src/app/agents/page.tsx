@@ -21,8 +21,9 @@ import {
 import "@xyflow/react/dist/style.css";
 import {
   Activity, MessageSquare, Zap, DollarSign, CheckCircle2, Clock,
-  ChevronRight, BarChart3, Bot, Network,
+  ChevronRight, BarChart3, Bot, Network, LayoutDashboard,
 } from "lucide-react";
+import { AgentStatusBoard } from "@/components/agents/agent-status-board";
 
 // ─── 모델 색상 ───
 const MODEL_COLORS: Record<string, string> = {
@@ -470,23 +471,24 @@ function AgentAnalyticsTab() {
 }
 
 // ─── 메인 페이지 ───
-type MainTab = "status" | "analytics" | "topology";
+type MainTab = "board" | "status" | "analytics" | "topology";
 
 export default function AgentsPage() {
   const { agents } = useAgentStore();
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [feedTab, setFeedTab] = useState<"all" | "agent">("all");
-  const [mainTab, setMainTab] = useState<MainTab>("status");
+  const [mainTab, setMainTab] = useState<MainTab>("board");
 
   const selectedAgent = agents.find((a) => a.id === selectedId) ?? null;
   const activeCount = agents.filter((a) => a.status === "active").length;
   const idleCount = agents.filter((a) => a.status === "idle").length;
   const totalCost = agents.reduce((s, a) => s + (a.todayCostUsd ?? 0), 0);
 
-  const TABS: { id: MainTab; label: string; icon: React.ReactNode }[] = [
-    { id: "status", label: "현황", icon: <Activity className="w-3.5 h-3.5" /> },
-    { id: "analytics", label: "분석", icon: <BarChart3 className="w-3.5 h-3.5" /> },
-    { id: "topology", label: "토폴로지", icon: <Network className="w-3.5 h-3.5" /> },
+  const TABS: { id: MainTab; label: string; icon: React.ReactNode; urgent?: boolean }[] = [
+    { id: "board",    label: "상태 보드",   icon: <LayoutDashboard className="w-3.5 h-3.5" />, urgent: agents.some((a) => a.status === "interrupted") },
+    { id: "status",   label: "현황",        icon: <Activity className="w-3.5 h-3.5" /> },
+    { id: "analytics", label: "분석",       icon: <BarChart3 className="w-3.5 h-3.5" /> },
+    { id: "topology", label: "토폴로지",    icon: <Network className="w-3.5 h-3.5" /> },
   ];
 
   return (
@@ -521,7 +523,7 @@ export default function AgentsPage() {
               <button
                 key={t.id}
                 onClick={() => setMainTab(t.id)}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs transition-colors ${
+                className={`relative flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs transition-colors ${
                   mainTab === t.id
                     ? "bg-[var(--wiring-accent)] text-white font-medium"
                     : "text-[var(--wiring-text-secondary)] hover:bg-[var(--wiring-glass-hover)]"
@@ -529,6 +531,9 @@ export default function AgentsPage() {
               >
                 {t.icon}
                 {t.label}
+                {t.urgent && mainTab !== t.id && (
+                  <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-[var(--hitl-waiting)]" />
+                )}
               </button>
             ))}
           </div>
@@ -536,6 +541,13 @@ export default function AgentsPage() {
 
         <ScrollArea className="flex-1">
           <div className="p-6">
+            {/* ── 상태 보드 탭 ── */}
+            {mainTab === "board" && (
+              <div className="-m-6 h-[calc(100%+3rem)]">
+                <AgentStatusBoard />
+              </div>
+            )}
+
             {/* ── 현황 탭 ── */}
             {mainTab === "status" && (
               <div className="space-y-5">

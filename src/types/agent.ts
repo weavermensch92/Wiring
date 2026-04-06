@@ -1,4 +1,4 @@
-export type AgentStatus = "active" | "idle" | "error";
+export type AgentStatus = "active" | "idle" | "interrupted" | "error";
 
 export interface Agent {
   id: string;
@@ -13,6 +13,13 @@ export interface Agent {
   todayCompletedTickets?: number;
   primaryModel?: string;
   role?: string;
+  // Harness Engineering 필드
+  tokenUsage?: {
+    used: number;
+    budget: number; // 0이면 무제한
+  };
+  interruptedSince?: string; // ISO — interrupted 상태 시작 시각
+  waitingHitlId?: string;    // 대기 중인 HITL ID
 }
 
 export interface AgentWorkHistory {
