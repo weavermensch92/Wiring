@@ -254,4 +254,108 @@ export const DUMMY_HITL_QUEUE: HITLQueueItem[] = [
       ],
     },
   },
+
+  // ─── Context Change HITL ─────────────────────────────────
+
+  {
+    id: "hitl-ctx-1",
+    type: "context_change",
+    title: "마케팅 예산 증가 → 루틴 조정 및 티켓 우선순위 변경",
+    epicId: "epic-gr-1",
+    priority: "high",
+    status: "waiting",
+    createdAt: new Date(Date.now() - 2 * 3600 * 1000).toISOString(),
+    requestedBy: "BM",
+    assignedTo: { id: "user-1", name: "김CTO", level: "L3" },
+    briefing:
+      "Notion 기획서에서 4분기 마케팅 예산 35% 증가가 감지되었습니다. BM Agent와 PM Agent가 작업 계획 조정을 제안합니다. 각 제안을 개별 승인하거나 거부해주세요.",
+    agentDiscussionSummary: "BM Agent: 마케팅 비용 $12K→$16.2K(+35%), AI 분석 비용도 비례 증가 필요. PM Agent: 그로스팀 티켓 우선순위 조정으로 예산 효과 극대화 가능.",
+    confidence: 82,
+    riskLevel: "medium",
+    evidenceNotes: [
+      { metric: "마케팅 예산", current: "$12,000", proposed: "$16,200", impact: "positive" },
+      { metric: "AI 운용 비용", current: "$280/월", proposed: "$380/월", impact: "negative" },
+      { metric: "기대 ROI", current: "3.2x", proposed: "3.8x (예상)", impact: "positive" },
+    ],
+    contextChange: {
+      eventId: "ctx-evt-1",
+      eventType: "budget_change",
+      summary: "4분기 마케팅 예산 35% 상향 조정됨 ($12K → $16.2K/월)",
+      changes: [
+        { metric: "마케팅 예산", before: "$12,000/월", after: "$16,200/월", delta: "+35%", impact: "positive" },
+        { metric: "AI 비용 증가", before: "$280/월", after: "$380/월", delta: "+$100", impact: "negative" },
+      ],
+      proposals: [
+        {
+          id: "prop-ctx1-1",
+          agentId: "agent-bm",
+          agentLabel: "BM",
+          proposalType: "routine_update",
+          description: "마케팅 성과 분석 루틴: 주 2회 → 매일 실행",
+          impact: "추가 비용 $8/월, 마케팅 반응 속도 3.5배 향상 예상",
+          approved: undefined,
+        },
+        {
+          id: "prop-ctx1-2",
+          agentId: "agent-pm",
+          agentLabel: "PM",
+          proposalType: "ticket_priority",
+          description: "그로스팀 콘텐츠 에픽 우선순위 High → Critical 상향 (3개 티켓 영향)",
+          impact: "FE/BE Agent 배정 우선순위 변경, 2주 내 완료 목표",
+          approved: undefined,
+        },
+      ],
+    },
+  },
+
+  {
+    id: "hitl-ctx-2",
+    type: "context_change",
+    title: "B2B API 서비스 출시 결정 → 신규 에픽 생성 제안",
+    epicId: "epic-pf-1",
+    priority: "critical",
+    status: "waiting",
+    createdAt: new Date(Date.now() - 5 * 3600 * 1000).toISOString(),
+    requestedBy: "PM",
+    assignedTo: { id: "user-1", name: "김CTO", level: "L3" },
+    briefing:
+      "Notion 경영진 회의록에서 B2B API 서비스 2분기 출시 결정이 감지되었습니다. PM Agent가 신규 에픽 3개 생성과 기술 스펙 검토를 제안합니다.",
+    agentDiscussionSummary: "PM Agent: B2B 전환을 위해 API 인증/문서화/과금 에픽 3개 필요. SM Agent: Kong API Gateway 또는 AWS API Gateway 중 선택 필요, 스펙 검토 우선 진행.",
+    confidence: 91,
+    riskLevel: "high",
+    evidenceNotes: [
+      { metric: "서비스 범위 변화", current: "B2C 전용", proposed: "B2C + B2B API", impact: "positive" },
+      { metric: "신규 에픽 수", current: "0", proposed: "3개", impact: "neutral" },
+      { metric: "예상 추가 공수", current: "—", proposed: "6~8주", impact: "negative" },
+    ],
+    contextChange: {
+      eventId: "ctx-evt-2",
+      eventType: "service_expansion",
+      summary: "B2B API 서비스 2분기 출시 결정 (기존 B2C Only → B2C + B2B)",
+      changes: [
+        { metric: "서비스 범위", before: "B2C 전용", after: "B2C + B2B API", impact: "positive" },
+        { metric: "신규 에픽", before: "—", after: "3개 (인증/문서/과금)", impact: "neutral" },
+      ],
+      proposals: [
+        {
+          id: "prop-ctx2-1",
+          agentId: "agent-pm",
+          agentLabel: "PM",
+          proposalType: "epic_create",
+          description: "신규 에픽 3개 생성: B2B API 인증 시스템 / API 문서화 포털 / B2B 과금·정산 모듈",
+          impact: "플랫폼팀에 6~8주 추가 작업. 티켓 40~60개 예상",
+          approved: undefined,
+        },
+        {
+          id: "prop-ctx2-2",
+          agentId: "agent-sm",
+          agentLabel: "SM",
+          proposalType: "epic_create",
+          description: "API 게이트웨이 기술 스펙 검토 (Kong vs AWS API GW) 및 spec_decision HITL 생성",
+          impact: "스펙 결정 후 에픽 상세 설계 진행, 1주 소요",
+          approved: undefined,
+        },
+      ],
+    },
+  },
 ];

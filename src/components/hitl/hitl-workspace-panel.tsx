@@ -4,7 +4,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { useHITLStore } from "@/stores/hitl-store";
 import { useNavigationStore } from "@/stores/navigation-store";
-import { HITLQueueItem, DecisionRecord } from "@/types/hitl";
+import { HITLQueueItem, DecisionRecord, ContextChangeProposal } from "@/types/hitl";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -37,6 +37,7 @@ const TYPE_CONFIG: Record<string, { label: string; icon: typeof FileText; color:
   cost_approval:     { label: "비용 승인",    icon: DollarSign,  color: "var(--wiring-warning)" },
   assignment:        { label: "담당자 배정",  icon: Users,       color: "var(--wiring-success)" },
   model_allocation:  { label: "모델 배분",    icon: Cpu,         color: "var(--wiring-accent)" },
+  context_change:    { label: "맥락 변경",    icon: AlertTriangleIcon, color: "var(--wiring-warning)" },
 };
 
 const STATUS_CONFIG: Record<string, { label: string; color: string }> = {
@@ -510,6 +511,7 @@ function TypeSpecificContent({ item }: { item: HITLQueueItem }) {
     case "design_review":     return <DesignReviewSection item={item} />;
     case "model_allocation":  return <ModelAllocationSection item={item} />;
     case "cost_approval":     return <CostApprovalSection item={item} />;
+    case "context_change":    return <ContextChangeSection item={item} />;
     default: return null;
   }
 }
@@ -740,6 +742,136 @@ function CostApprovalSection({ item }: { item: HITLQueueItem }) {
       <div className="p-3 rounded-lg bg-[var(--wiring-warning)]/10 border border-[var(--wiring-warning)]/20">
         <p className="text-xs text-[var(--wiring-warning)]">추가 요청액: <span className="font-bold">${data.requestedAmount}</span></p>
         {data.reason && <p className="text-xs text-[var(--wiring-text-secondary)] mt-1">{data.reason}</p>}
+      </div>
+    </div>
+  );
+}
+
+function ContextChangeSection({ item }: { item: HITLQueueItem }) {
+  const [proposals, setProposals] = useState<ContextChangeProposal[]>(
+    item.contextChange?.proposals ?? []
+  );
+
+  if (!item.contextChange) return null;
+  const { changes, summary } = item.contextChange;
+
+  const IMPACT_COLORS = {
+    positive: "var(--wiring-success)",
+    negative: "var(--wiring-danger)",
+    neutral: "var(--wiring-text-tertiary)",
+  };
+
+  const PROPOSAL_TYPE_LABELS: Record<string, string> = {
+    routine_update:   "루틴 조정",
+    epic_create:      "에픽 생성",
+    ticket_priority:  "우선순위 변경",
+    budget_adjust:    "예산 조정",
+    model_change:     "모델 변경",
+  };
+
+  const toggleProposal = (proposalId: string, approved: boolean) => {
+    setProposals((prev) =>
+      prev.map((p) => (p.id === proposalId ? { ...p, approved } : p))
+    );
+  };
+
+  const approvedCount = proposals.filter((p) => p.approved === true).length;
+  const rejectedCount = proposals.filter((p) => p.approved === false).length;
+
+  return (
+    <div className="space-y-4">
+      {/* 감지된 변화 테이블 */}
+      <div className="glass-panel overflow-hidden">
+        <div className="px-5 py-3 border-b border-[var(--wiring-glass-border)]">
+          <h2 className="text-sm font-semibold text-[var(--wiring-text-primary)]">감지된 변화</h2>
+          <p className="text-[10px] text-[var(--wiring-text-tertiary)] mt-0.5">{summary}</p>
+        </div>
+        <div className="divide-y divide-[var(--wiring-glass-border)]">
+          {changes.map((c, i) => (
+            <div key={i} className="grid grid-cols-4 gap-3 px-5 py-2.5 text-xs">
+              <span className="text-[var(--wiring-text-secondary)]">{c.metric}</span>
+              <span className="text-[var(--wiring-text-tertiary)] font-mono">{c.before}</span>
+              <div className="flex items-center gap-1">
+                <span className="font-mono font-medium text-[var(--wiring-text-primary)]">{c.after}</span>
+                {c.delta && (
+                  <span className="text-[9px] font-bold" style={{ color: IMPACT_COLORS[c.impact] }}>
+                    {c.delta}
+                  </span>
+                )}
+              </div>
+              <div className="flex items-center justify-end">
+                {c.impact === "positive" ? <TrendingUp className="w-3 h-3" style={{ color: IMPACT_COLORS.positive }} />
+                  : c.impact === "negative" ? <TrendingDown className="w-3 h-3" style={{ color: IMPACT_COLORS.negative }} />
+                  : <Minus className="w-3 h-3" style={{ color: IMPACT_COLORS.neutral }} />}
+              </div>
+            </div>
+          ))}
+        </div>
+        <div className="px-5 py-1.5 bg-[var(--wiring-glass-bg)] border-t border-[var(--wiring-glass-border)]">
+          <div className="grid grid-cols-4 gap-3 text-[9px] font-medium text-[var(--wiring-text-tertiary)]">
+            <span>지표</span><span>현재</span><span>변경 후</span><span className="text-right">영향</span>
+          </div>
+        </div>
+      </div>
+
+      {/* 에이전트 제안 — 개별 승인/거부 */}
+      <div className="glass-panel overflow-hidden">
+        <div className="px-5 py-3 border-b border-[var(--wiring-glass-border)] flex items-center justify-between">
+          <h2 className="text-sm font-semibold text-[var(--wiring-text-primary)]">에이전트 제안</h2>
+          <span className="text-[10px] text-[var(--wiring-text-tertiary)]">
+            {approvedCount}승인 / {rejectedCount}거부 / {proposals.length - approvedCount - rejectedCount}대기
+          </span>
+        </div>
+        <div className="divide-y divide-[var(--wiring-glass-border)]">
+          {proposals.map((proposal) => (
+            <div key={proposal.id} className={`px-5 py-4 space-y-2.5 ${proposal.approved === false ? "opacity-50" : ""}`}>
+              <div className="flex items-start gap-3">
+                <div className="w-6 h-6 rounded-full flex items-center justify-center shrink-0 mt-0.5 text-[9px] font-bold"
+                  style={{ backgroundColor: "#6B7280" + "20", color: "#6B7280" }}>
+                  {proposal.agentLabel}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-0.5">
+                    <span className="text-[10px] font-medium text-[var(--wiring-text-secondary)]">{proposal.agentLabel} Agent</span>
+                    <Badge variant="secondary" className="text-[9px] px-1.5">
+                      {PROPOSAL_TYPE_LABELS[proposal.proposalType] ?? proposal.proposalType}
+                    </Badge>
+                  </div>
+                  <p className="text-sm text-[var(--wiring-text-primary)]">{proposal.description}</p>
+                  <p className="text-[10px] text-[var(--wiring-text-tertiary)] mt-1">{proposal.impact}</p>
+                </div>
+              </div>
+              {proposal.approved === undefined && (
+                <div className="flex gap-2 pl-9">
+                  <button
+                    onClick={() => toggleProposal(proposal.id, true)}
+                    className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors bg-[var(--wiring-success)]/20 text-[var(--wiring-success)] hover:bg-[var(--wiring-success)]/30"
+                  >
+                    <CheckCircle className="w-3 h-3" />승인
+                  </button>
+                  <button
+                    onClick={() => toggleProposal(proposal.id, false)}
+                    className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors bg-[var(--wiring-danger)]/20 text-[var(--wiring-danger)] hover:bg-[var(--wiring-danger)]/30"
+                  >
+                    <XCircle className="w-3 h-3" />거부
+                  </button>
+                </div>
+              )}
+              {proposal.approved === true && (
+                <div className="pl-9 flex items-center gap-1 text-[10px] text-[var(--wiring-success)]">
+                  <CheckCircle className="w-3 h-3" />승인됨
+                  <button onClick={() => toggleProposal(proposal.id, undefined as any)} className="ml-2 underline opacity-60">취소</button>
+                </div>
+              )}
+              {proposal.approved === false && (
+                <div className="pl-9 flex items-center gap-1 text-[10px] text-[var(--wiring-danger)]">
+                  <XCircle className="w-3 h-3" />거부됨
+                  <button onClick={() => toggleProposal(proposal.id, undefined as any)} className="ml-2 underline opacity-60">취소</button>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );

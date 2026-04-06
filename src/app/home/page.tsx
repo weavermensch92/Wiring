@@ -8,6 +8,7 @@ import { CURRENT_USER } from "@/dummy/users";
 import { DUMMY_AGENTS } from "@/dummy/agents";
 import { useHITLStore } from "@/stores/hitl-store";
 import { useNavigationStore } from "@/stores/navigation-store";
+import { useContextStore } from "@/stores/context-store";
 import { DUMMY_ACTIVITIES } from "@/dummy/activity";
 import { DUMMY_DAILY_TICKET_STATS } from "@/dummy/analytics";
 import { AGENT_COLORS } from "@/lib/constants";
@@ -18,7 +19,7 @@ import {
 } from "recharts";
 import {
   Ticket, Clock, DollarSign, AlertTriangle, Activity,
-  TrendingUp, ArrowRight, Bot, CheckCircle2, Zap,
+  TrendingUp, ArrowRight, Bot, CheckCircle2, Zap, Sparkles,
 } from "lucide-react";
 
 // ─── 미니 스파크라인 툴팁 ───
@@ -78,6 +79,10 @@ export default function HomePage() {
   const router = useRouter();
   const { queueItems } = useHITLStore();
   const { setActiveHitl } = useNavigationStore();
+  const { events: contextEvents } = useContextStore();
+  const contextActionRequired = contextEvents.filter(
+    (e) => e.severity === "action_required" && !e.acknowledged
+  );
   const myTeams = DUMMY_TEAMS.filter((t) => t.memberIds.includes(CURRENT_USER.id));
   const myProjects = DUMMY_PROJECTS.filter((p) => myTeams.some((t) => t.id === p.teamId));
 
@@ -310,6 +315,42 @@ export default function HomePage() {
               )}
             </div>
           </div>
+
+          {/* 회사 맥락 변화 배너 */}
+          {contextActionRequired.length > 0 && (
+            <div className="rounded-xl border border-[var(--wiring-warning)]/40 bg-[var(--wiring-warning)]/8 p-4">
+              <div className="flex items-start gap-3">
+                <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 bg-[var(--wiring-warning)]/20">
+                  <Sparkles className="w-4 h-4 text-[var(--wiring-warning)]" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-semibold text-[var(--wiring-text-primary)] mb-1">
+                    회사 맥락 변화 — {contextActionRequired.length}개 조치 필요
+                  </p>
+                  {contextActionRequired.slice(0, 2).map((evt) => (
+                    <div key={evt.id} className="flex items-center gap-2 mb-1">
+                      <span className="w-1.5 h-1.5 rounded-full bg-[var(--wiring-danger)] shrink-0" />
+                      <p className="text-xs text-[var(--wiring-text-secondary)] truncate">{evt.title}</p>
+                      {evt.hitlId && (
+                        <button
+                          onClick={() => setActiveHitl(evt.hitlId!)}
+                          className="text-[10px] font-medium px-2 py-0.5 rounded bg-[var(--wiring-danger)]/20 text-[var(--wiring-danger)] shrink-0 hover:bg-[var(--wiring-danger)]/30 transition-colors"
+                        >
+                          검토
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+                <button
+                  onClick={() => router.push("/settings?tab=context")}
+                  className="text-[10px] text-[var(--wiring-accent)] hover:underline shrink-0"
+                >
+                  맥락 관리 →
+                </button>
+              </div>
+            </div>
+          )}
 
           {/* 최근 활동 */}
           <div className="glass-panel p-4">

@@ -20,7 +20,8 @@ export type HITLType =
   | "design_review"
   | "cost_approval"
   | "assignment"
-  | "model_allocation";
+  | "model_allocation"
+  | "context_change";
 
 export type HITLStatus = "waiting" | "in_progress" | "approved" | "rejected" | "escalated";
 
@@ -88,6 +89,33 @@ export interface HITLQueueItem {
   designUrl?: string;
   allocation?: ModelAllocationData;
   costApproval?: CostApprovalData;
+  contextChange?: ContextChangeData;
+}
+
+// ─── Context Change HITL ──────────────────────────────────
+
+export interface ContextChangeProposal {
+  id: string;
+  agentId: string;
+  agentLabel: string;
+  proposalType: "routine_update" | "epic_create" | "ticket_priority" | "budget_adjust" | "model_change";
+  description: string;
+  impact: string;
+  approved?: boolean;
+}
+
+export interface ContextChangeData {
+  eventId: string;
+  eventType: string;
+  summary: string;
+  changes: {
+    metric: string;
+    before: string;
+    after: string;
+    delta?: string;
+    impact: "positive" | "negative" | "neutral";
+  }[];
+  proposals: ContextChangeProposal[];
 }
 
 export interface CostApprovalData {

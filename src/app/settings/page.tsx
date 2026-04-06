@@ -26,7 +26,9 @@ import {
   ToggleRight,
   AlertTriangle,
   Key,
+  Sparkles,
 } from "lucide-react";
+import { ContextTab } from "./context-tab";
 
 // ─── 탭 버튼 ───
 function TabBtn({ active, onClick, icon, children }: {
@@ -440,7 +442,7 @@ function TeamManagementTab() {
 }
 
 // ─── 메인 ───
-type Tab = "ai" | "external" | "team";
+type Tab = "ai" | "external" | "team" | "context";
 
 export default function SettingsPage() {
   const searchParams = typeof window !== "undefined"
@@ -456,6 +458,9 @@ export default function SettingsPage() {
           <div>
             <h1 className="text-xl font-semibold text-[var(--wiring-text-primary)] mb-4">설정</h1>
             <div className="flex gap-2">
+              <TabBtn active={tab === "context"} onClick={() => setTab("context")} icon={<Sparkles className="w-4 h-4" />}>
+                회사 맥락
+              </TabBtn>
               <TabBtn active={tab === "ai"} onClick={() => setTab("ai")} icon={<Bot className="w-4 h-4" />}>
                 AI 설정
               </TabBtn>
@@ -468,6 +473,7 @@ export default function SettingsPage() {
             </div>
           </div>
 
+          {tab === "context" && <ContextTab />}
           {tab === "ai" && <AiSettingsTab />}
           {tab === "external" && <ExternalPolicyTab />}
           {tab === "team" && <TeamManagementTab />}
