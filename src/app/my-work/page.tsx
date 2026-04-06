@@ -6,6 +6,7 @@ import { DUMMY_TEAMS } from "@/dummy/teams";
 import { DUMMY_PROJECTS, DUMMY_EPICS, DUMMY_TICKETS, DUMMY_SUBTASKS, getAllTicketsForProject } from "@/dummy/projects";
 import { CURRENT_USER } from "@/dummy/users";
 import { useHITLStore } from "@/stores/hitl-store";
+import { useNavigationStore } from "@/stores/navigation-store";
 import { useProjectStore } from "@/stores/project-store";
 import { AGENT_COLORS } from "@/lib/constants";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -57,6 +58,7 @@ function MyWorkContent() {
   const initialTab = (searchParams.get("tab") as Tab) ?? "tickets";
   const [tab, setTab] = useState<Tab>(initialTab);
   const { queueItems } = useHITLStore();
+  const { setActiveHitl } = useNavigationStore();
   const { tickets: storeTickets } = useProjectStore();
 
   // 내게 배정된 티켓
@@ -252,7 +254,7 @@ function MyWorkContent() {
                 myHITL.map((hitl) => (
                   <button
                     key={hitl.id}
-                    onClick={() => router.push(`/hitl/${hitl.id}`)}
+                    onClick={() => setActiveHitl(hitl.id)}
                     className="w-full glass-panel px-4 py-3 flex items-start gap-3 hover:border-[var(--wiring-accent)] transition-all text-left group"
                   >
                     <div

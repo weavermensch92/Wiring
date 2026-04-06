@@ -8,6 +8,7 @@ import { getProjectsForTeam, getAllTicketsForProject } from "@/dummy/projects";
 import { DUMMY_DOCUMENTS } from "@/dummy/documents";
 import { DUMMY_AGENTS } from "@/dummy/agents";
 import { useHITLStore } from "@/stores/hitl-store";
+import { useNavigationStore } from "@/stores/navigation-store";
 import type { HITLQueueItem } from "@/types/hitl";
 import {
   Search, FileText, Folder, Ticket, Bot, AlertTriangle, X, ArrowRight,
@@ -212,6 +213,7 @@ function PrefixHints({ onPrefix }: { onPrefix: (p: string) => void }) {
 export function GlobalSearch({ open, onClose }: { open: boolean; onClose: () => void }) {
   const router = useRouter();
   const { queueItems } = useHITLStore();
+  const { setActiveHitl } = useNavigationStore();
   const [query, setQuery] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
   const [selectedIdx, setSelectedIdx] = useState(0);
@@ -231,11 +233,17 @@ export function GlobalSearch({ open, onClose }: { open: boolean; onClose: () => 
   const handleSelect = useCallback((item: PaletteItem) => {
     if (item.onSelect) { item.onSelect(); }
     else if (item.href) {
-      recordRecentPage(item.href, item.title);
-      router.push(item.href);
+      // HITL 항목은 페이지 이동 대신 Main 전환
+      if (item.type === "hitl" && item.href.startsWith("/hitl/")) {
+        const hitlId = item.href.replace("/hitl/", "");
+        setActiveHitl(hitlId);
+      } else {
+        recordRecentPage(item.href, item.title);
+        router.push(item.href);
+      }
     }
     onClose();
-  }, [router, onClose]);
+  }, [router, onClose, setActiveHitl]);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "ArrowDown") { e.preventDefault(); setSelectedIdx((i) => Math.min(i + 1, results.length - 1)); }

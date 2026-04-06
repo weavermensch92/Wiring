@@ -4,6 +4,7 @@ import { useState, useMemo } from "react";
 import { Ticket, TicketStatus, Priority } from "@/types/project";
 import { useProjectStore } from "@/stores/project-store";
 import { useHITLStore } from "@/stores/hitl-store";
+import { useNavigationStore } from "@/stores/navigation-store";
 import { DUMMY_EPICS } from "@/dummy/projects";
 import { CURRENT_USER } from "@/dummy/users";
 import {
@@ -92,6 +93,7 @@ export function TicketDetailDialog({
 function TicketDetailInner({ ticket }: { ticket: Ticket }) {
   const { moveTicket, updateTicket, subtasks, comments, activities, addComment, toggleSubtask, addSubtask } = useProjectStore();
   const { queueItems } = useHITLStore();
+  const { setActiveHitl } = useNavigationStore();
   const relatedHITL = queueItems.filter((item) => item.ticketId === ticket.id);
 
   // Find parent epic
@@ -307,7 +309,7 @@ function TicketDetailInner({ ticket }: { ticket: Ticket }) {
               <section className="space-y-3">
                 <h3 className="text-xs font-semibold text-[var(--wiring-text-tertiary)] uppercase">HITL 상태</h3>
                 {relatedHITL.map((item) => (
-                  <Link key={item.id} href={`/hitl/${item.id}`}>
+                  <button key={item.id} onClick={() => setActiveHitl(item.id)} className="w-full text-left">
                     <div className="p-2.5 rounded-lg border border-[var(--wiring-glass-border)] hover:bg-[var(--wiring-glass-hover)] transition-colors cursor-pointer">
                       <div className="flex items-center justify-between mb-1">
                         <span className="text-xs font-medium text-[var(--wiring-text-primary)]">{item.title}</span>
@@ -322,7 +324,7 @@ function TicketDetailInner({ ticket }: { ticket: Ticket }) {
                         <span className="text-[9px] text-[var(--wiring-text-tertiary)]">by {item.requestedBy}</span>
                       </div>
                     </div>
-                  </Link>
+                  </button>
                 ))}
               </section>
             </>

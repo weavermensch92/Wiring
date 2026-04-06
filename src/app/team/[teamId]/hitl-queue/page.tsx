@@ -3,6 +3,7 @@
 import { use, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useHITLStore } from "@/stores/hitl-store";
+import { useNavigationStore } from "@/stores/navigation-store";
 import { DUMMY_TEAMS } from "@/dummy/teams";
 import { DUMMY_EPICS } from "@/dummy/projects";
 import { getProjectsForTeam } from "@/dummy/projects";
@@ -99,6 +100,7 @@ export default function TeamHITLQueuePage({ params }: { params: Promise<{ teamId
   const router = useRouter();
   const team = DUMMY_TEAMS.find((t) => t.id === teamId);
   const { queueItems } = useHITLStore();
+  const { setActiveHitl } = useNavigationStore();
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [typeFilter, setTypeFilter] = useState<string>("all");
 
@@ -214,7 +216,7 @@ export default function TeamHITLQueuePage({ params }: { params: Promise<{ teamId
                 <HITLCard
                   key={item.id}
                   item={item}
-                  onClick={() => router.push(`/hitl/${item.id}`)}
+                  onClick={() => setActiveHitl(item.id)}
                 />
               ))
             )}

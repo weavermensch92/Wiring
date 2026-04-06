@@ -3,6 +3,7 @@
 import { usePathname } from "next/navigation";
 import { useLayoutStore } from "@/stores/layout-store";
 import { useHITLStore } from "@/stores/hitl-store";
+import { useNavigationStore } from "@/stores/navigation-store";
 import { useFavoritesStore } from "@/stores/favorites-store";
 import { DUMMY_DOCUMENTS } from "@/dummy/documents";
 import { DUMMY_TEAMS } from "@/dummy/teams";
@@ -86,10 +87,13 @@ export function TopBar() {
   const pathname = usePathname();
   const { chatPanelOpen, toggleChatPanel, openSearch, openHelp } = useLayoutStore();
   const { queueItems } = useHITLStore();
+  const { activeHitlId, setActiveHitl } = useNavigationStore();
   const { toggle, has } = useFavoritesStore();
   const waitingCount = queueItems.filter((i) => i.status === "waiting").length;
 
-  const breadcrumb = getBreadcrumb(pathname);
+  // activeHitlId 시 TopBar 타이틀 → HITL 아이템 타이틀로 전환 (기획 §8.1)
+  const activeHitlItem = activeHitlId ? queueItems.find((i) => i.id === activeHitlId) : null;
+  const breadcrumb = activeHitlItem ? activeHitlItem.title : getBreadcrumb(pathname);
 
   // Build favorite item from current page
   const projectMatch = pathname.match(/^\/team\/(.+?)\/project\/(.+)$/);

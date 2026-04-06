@@ -8,6 +8,7 @@ interface NavigationState {
   activeSection: NavSection;
   activeProjectId: string | null;
   activeEpicId: string | null;
+  activeHitlId: string | null;
   subNavCollapsed: boolean;
   // Drill-down expand state
   expandedProjects: Record<string, boolean>;
@@ -22,6 +23,7 @@ interface NavigationState {
   setActiveSection: (section: NavSection) => void;
   setActiveProjectId: (projectId: string | null) => void;
   setActiveEpicId: (epicId: string | null) => void;
+  setActiveHitl: (hitlId: string | null) => void;
   toggleSubNav: () => void;
   setSubNavCollapsed: (collapsed: boolean) => void;
   toggleProjectExpand: (projectId: string) => void;
@@ -37,6 +39,7 @@ export const useNavigationStore = create<NavigationState>((set) => ({
   activeSection: "home",
   activeProjectId: null,
   activeEpicId: null,
+  activeHitlId: null,
   subNavCollapsed: false,
   expandedProjects: {},
   expandedEpics: {},
@@ -47,6 +50,7 @@ export const useNavigationStore = create<NavigationState>((set) => ({
   setActiveSection: (section) => set({ activeSection: section }),
   setActiveProjectId: (projectId) => set({ activeProjectId: projectId }),
   setActiveEpicId: (epicId) => set({ activeEpicId: epicId }),
+  setActiveHitl: (hitlId) => set({ activeHitlId: hitlId }),
   toggleSubNav: () => set((s) => ({ subNavCollapsed: !s.subNavCollapsed })),
   setSubNavCollapsed: (collapsed) => set({ subNavCollapsed: collapsed }),
   toggleProjectExpand: (id) =>

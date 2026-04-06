@@ -7,6 +7,7 @@ import { DUMMY_TEAMS } from "@/dummy/teams";
 import { CURRENT_USER } from "@/dummy/users";
 import { DUMMY_AGENTS } from "@/dummy/agents";
 import { useHITLStore } from "@/stores/hitl-store";
+import { useNavigationStore } from "@/stores/navigation-store";
 import { DUMMY_ACTIVITIES } from "@/dummy/activity";
 import { DUMMY_DAILY_TICKET_STATS } from "@/dummy/analytics";
 import { AGENT_COLORS } from "@/lib/constants";
@@ -76,6 +77,7 @@ function KPICard({
 export default function HomePage() {
   const router = useRouter();
   const { queueItems } = useHITLStore();
+  const { setActiveHitl } = useNavigationStore();
   const myTeams = DUMMY_TEAMS.filter((t) => t.memberIds.includes(CURRENT_USER.id));
   const myProjects = DUMMY_PROJECTS.filter((p) => myTeams.some((t) => t.id === p.teamId));
 
@@ -141,7 +143,7 @@ export default function HomePage() {
           <div className="flex items-center gap-2">
             {hitlWaiting > 0 && (
               <button
-                onClick={() => router.push(`/hitl/${queueItems.find((i) => i.status === "waiting")?.id}`)}
+                onClick={() => { const first = queueItems.find((i) => i.status === "waiting"); if (first) setActiveHitl(first.id); }}
                 className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-black"
                 style={{ backgroundColor: "var(--hitl-waiting)" }}
               >

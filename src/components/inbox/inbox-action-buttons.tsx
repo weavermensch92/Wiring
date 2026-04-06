@@ -2,6 +2,7 @@
 
 import { InboxAction } from "@/types/inbox";
 import { useInboxStore } from "@/stores/inbox-store";
+import { useNavigationStore } from "@/stores/navigation-store";
 import { useRouter } from "next/navigation";
 
 const VARIANT_CLASSES: Record<string, string> = {
@@ -12,6 +13,7 @@ const VARIANT_CLASSES: Record<string, string> = {
 
 export function InboxActionButtons({ messageId, actions }: { messageId: string; actions: InboxAction[] }) {
   const { handleInboxAction } = useInboxStore();
+  const { setActiveHitl } = useNavigationStore();
   const router = useRouter();
 
   if (actions.length === 0) return null;
@@ -23,9 +25,8 @@ export function InboxActionButtons({ messageId, actions }: { messageId: string; 
           key={action.id}
           onClick={() => {
             if (action.type === "navigate" && action.hitlItemId) {
-              router.push(`/hitl/${action.hitlItemId}`);
-            } else if (action.type === "navigate") {
-              // Navigate to first attachment href if exists
+              // HITL 상세 보기 → 페이지 이동 대신 Main 전환 (기획 §8.1)
+              setActiveHitl(action.hitlItemId);
             } else {
               handleInboxAction(messageId, action.id);
             }

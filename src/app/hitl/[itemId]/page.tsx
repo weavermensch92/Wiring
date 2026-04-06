@@ -1,7 +1,8 @@
 "use client";
 
-import { use, useState } from "react";
+import { use, useState, useEffect } from "react";
 import { useHITLStore } from "@/stores/hitl-store";
+import { useNavigationStore } from "@/stores/navigation-store";
 import { HITLQueueItem, DecisionRecord, CostApprovalData } from "@/types/hitl";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -66,7 +67,14 @@ const PRIORITY_CONFIG: Record<string, { label: string; color: string }> = {
 export default function HITLDetailPage({ params }: { params: Promise<{ itemId: string }> }) {
   const { itemId } = use(params);
   const { queueItems, approveItem, rejectItem, escalateItem, delegateItem } = useHITLStore();
+  const { setActiveHitl } = useNavigationStore();
   const item = queueItems.find((i) => i.id === itemId);
+
+  // URL 직접 접근 시 activeHitlId 동기화 → Main 전환 + Chat 자동열림
+  useEffect(() => {
+    setActiveHitl(itemId);
+    return () => setActiveHitl(null);
+  }, [itemId, setActiveHitl]);
 
   if (!item) {
     return (

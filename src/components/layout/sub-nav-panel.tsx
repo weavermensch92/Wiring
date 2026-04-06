@@ -71,6 +71,7 @@ function FavoritesNav() {
 function HomeSubNav() {
   const { queueItems } = useHITLStore();
   const inboxUnread = useInboxStore((s) => s.messages.filter((m) => m.status === "unread").length);
+  const { setActiveHitl } = useNavigationStore();
   const router = useRouter();
   const waitingCount = queueItems.filter((i) => i.status === "waiting").length;
 
@@ -100,7 +101,10 @@ function HomeSubNav() {
         label="내 HITL 큐"
         badge={waitingCount}
         badgeColor="var(--hitl-waiting)"
-        onClick={() => router.push(`/hitl/${queueItems.find((i) => i.status === "waiting")?.id ?? "hitl-1"}`)}
+        onClick={() => {
+          const first = queueItems.find((i) => i.status === "waiting");
+          if (first) setActiveHitl(first.id);
+        }}
       />
 
       <SectionDivider />

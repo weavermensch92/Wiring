@@ -1,6 +1,7 @@
 "use client";
 
 import { useInboxStore } from "@/stores/inbox-store";
+import { useNavigationStore } from "@/stores/navigation-store";
 import { AGENT_COLORS } from "@/lib/constants";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -117,6 +118,7 @@ function renderBody(body: string) {
 
 export function InboxMessageDetail() {
   const router = useRouter();
+  const { setActiveHitl } = useNavigationStore();
   const { activeMessageId, messages, toggleStar, markAsUnread, archiveMessage, unarchiveMessage } = useInboxStore();
   const message = messages.find((m) => m.id === activeMessageId);
 
@@ -206,7 +208,14 @@ export function InboxMessageDetail() {
               {message.attachments.map((att) => (
                 <button
                   key={att.id}
-                  onClick={() => router.push(att.href)}
+                  onClick={() => {
+                    // HITL 첨부는 페이지 이동 대신 Main 전환 (기획 §8.1)
+                    if (att.type === "hitl" && att.refId) {
+                      setActiveHitl(att.refId);
+                    } else {
+                      router.push(att.href);
+                    }
+                  }}
                   className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs text-[var(--wiring-accent)] bg-[var(--wiring-accent-glow)] hover:bg-[var(--wiring-accent)]/20 transition-colors"
                 >
                   <ExternalLink className="w-3 h-3" />
